@@ -59,6 +59,7 @@ def create_post(request):
         if(email_post in valid_users) and (valid_users[email_post] == password_post):
             print("---------------User is Valid!")
         else:
+            response_data['author'] = 'INVALID'
             print("------------------Invalid user!")
         
         
@@ -66,16 +67,9 @@ def create_post(request):
             response_data['author'] = 'WIN'
             print("--------------Success!!")
         else:
-            print("--------------No match!!")
-        
+            print("--------------No match!!")        
 
-        return HttpResponse(
-            json.dumps(response_data),
-            content_type="application/json"
-        )
+        return HttpResponse(json.dumps(response_data),content_type="application/json")
     else:
-        return HttpResponse(
-            json.dumps({"nothing to see": "this isn't happening"}),
-            content_type="application/json"
-        )
+        return HttpResponse(json.dumps({"nothing to see": "this isn't happening"}),content_type="application/json")
     

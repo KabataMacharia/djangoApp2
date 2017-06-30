@@ -35,7 +35,17 @@ $(function() {
                   {$("h3:first").replaceWith("<h3>SUCCESS!<h3>");
                     $("div.fieldWrapper").replaceWith("<b>Successfully logged in</b>");
                     $("input.button").replaceWith(" ");
-                      }          
+                      }
+                      
+                if (json.author == 'INVALID')
+                  {$("h3:first").replaceWith("<h3>Wrong Username/Password <h3>");
+                    $("div.fieldWrapper").replaceWith("<b>You Entered a wrong Username/Password combo</b>");
+                    $("input.button").replaceWith(" ");
+                      }
+                    
+                    
+                      
+                            
                  
                   
                   
