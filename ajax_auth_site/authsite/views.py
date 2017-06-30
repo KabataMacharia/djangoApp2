@@ -1,7 +1,11 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-from authsite.models import Post
-from authsite.forms import PostForm
+from django.shortcuts import redirect
+from django.http import HttpResponse, JsonResponse
+from django.contrib.auth import authenticate
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from authsite.models import *
+from authsite.forms import *
 
 import json
 from telesign.messaging import MessagingClient
@@ -16,60 +20,63 @@ message = "Your code is {}".format(verify_code)
 messaging = MessagingClient(customer_id, api_key)
 #username/password combos for valid users.
 #Later, get these from database etc
-valid_users = {'richard@mail.com':'1234', 'star@mail.com':'1234', 'peter@mail.com':'1234'}
+#valid_users = {'richard@mail.com':'1234', 'star@mail.com':'1234', 'peter@mail.com':'1234'}
 
-
-def home(req):
-
-    tmpl_vars = {
-        'all_posts': Post.objects.reverse(),
-        'form': PostForm()
-    }
-    return render(req, 'authsite/index.html', tmpl_vars)
-
-def create_post(request):
+def register(request):    
+    registered = False
+    
     if request.method == 'POST':
-        post_text = request.POST.get('the_post') 
-        email_post = request.POST.get('the_email')
-        password_post = request.POST.get("the_password")
-        response_data = {}
-
-        post = Post(text=post_text, author=request.user)
-        post.save()
-
-        response_data['result'] = 'Create post successful!'
-        response_data['postpk'] = post.pk
-        response_data['text'] = post.text
-        response_data['created'] = post.created
-        response_data['author'] = post.author.username      
-        
-        phone_number=post.text
-        
-        
-        response = messaging.message(phone_number, message, message_type)
-        print("------number is:",phone_number)
-        
-        print("------------Response: ",response)
-        print("-------------post.text: ",post.text)
-        print("------------Code: ", verify_code)
-        print("------------Email: ", email_post)
-        print("------------Password: ", password_post)
-        
-        
-        if(email_post in valid_users) and (valid_users[email_post] == password_post):
-            print("---------------User is Valid!")
+        uform = UserForm(data=request.POST)
+        pform = UserProfileForm(data = request.POST)
+        if uform.is_valid() and pform.is_valid():
+            user = uform.save()
+            pw = user.password
+            user.set_password(pw)
+            user.save()
+            profile = pform.save(commit=False)
+            profile.user = user
+            profile.save()
+            registered = True
         else:
-            response_data['author'] = 'INVALID'
-            print("------------------Invalid user!")
-        
-        
-        if (post.text == verify_code):
-            response_data['author'] = 'WIN'
-            print("--------------Success!!")
-        else:
-            print("--------------No match!!")        
-
-        return HttpResponse(json.dumps(response_data),content_type="application/json")
+            print(uform.errors, pform.errors)
     else:
-        return HttpResponse(json.dumps({"nothing to see": "this isn't happening"}),content_type="application/json")
+        uform = UserForm()
+        pform = UserProfileForm()        
+    return render(request, 'authsite/register.html', {'uform': uform, 'pform': pform, 'registered': registered })
+    
+def user_login(request):    
+    response_data = {}
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:                
+                login(request,user) 
+                print("-------user says: ",user.username)
+                response_data['logged_in']=user.username          
+                print("--------Type: ",type(response_data))      
+                return JsonResponse(response_data)
+            else:                
+                return HttpResponse("Your account is disabled")
+                
+        else:            
+            #return 'invalid login eorror'
+            print("Invalid login detauls "+username+" "+password)
+            return render(request,'authsite/login.html', {})
+    else:        
+        #login now leads to login.html
+        return render(request,'authsite/login.html',{})
+
+    
+@login_required
+def restricted(request):
+    return HttpResponse('Authsite says: since you are an authenticated user you can view this restricted page.')
+
+def user_logout(request):    
+    logout(request)
+    #Go back to index:
+    return redirect('/login')
+
     

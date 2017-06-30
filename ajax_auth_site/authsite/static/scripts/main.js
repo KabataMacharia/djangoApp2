@@ -3,28 +3,27 @@ $(function() {
 
     
     // Submit post on submit
-    $('#post-form').on('submit', function(event){
+    $('#login_form').on('submit', function(event){
         event.preventDefault();
         console.log("form submitted!")  // sanity check
-        create_post();
+        ajax_user_login();
         
-    });
-    
-    var formData=$("#post-form").serializeArray()    
+    });    
+        
 
     // AJAX for posting
-    function create_post() {
-        console.log("create post is working!") // sanity check
+    function ajax_user_login() {
+        console.log("user_login is working!") // sanity check
         $.ajax({
-            url : "create_post/", // the endpoint
+            url : "/login/", // the endpoint
             type : "POST", // http method
-            data : { the_post : $('#post-text').val(), the_email : $('#email').val(), the_password : $('#password').val() }, // data sent with the post request
-            
+            data : { username: $('#username').val(), password: $('#password').val(), phone_number: $('#id_phone_number').val(), code:$('#id_code').val() },
+                        
             // handle a successful response
             success : function(json) {
                 $('#post-text').val(''); // remove the value from the input
-                console.log(json); // log the returned json to the console
-                console.log(json.text);
+                console.log("Json.user is:"); // log the returned json to the console
+                console.log(json.logged_in);
                 $("h3:first").replaceWith("<h3>Now enter the sms code<h3>");
                 $("div.hiders").replaceWith(" ");
                 

@@ -3,8 +3,18 @@
 <br><br>
 <div class="row white">
     <div class="large-12 columns">
-        <a href="/logout" class="right">Logout</a>
-        <h3>Hi, enter your number</h3>
+        <P>
+        {% if user.is_authenticated %}
+                Welcome {{ user.username }}  |
+                <A href="/restricted/">Restricted Page</A> |
+                <A href="/logout/">Logout</A>
+        {% else %}
+                <A href="/register/">Register</A> |
+                <A href="/login/">Login</A>
+        {% endif %}
+        </P>
+        
+        <h3>Hi, Welcome</h3>
         
     </div>
 </div>
@@ -13,18 +23,22 @@
     <div class="columns large-12">
         <form method="POST" id="post-form">
             {% csrf_token %}
+            
+            <h6>Enter your username</h6>
             <div class="fieldWrapper" id="the_post">
                 {{ form.text }}
             </div> 
             
             <div class = "hiders">
             
+            <!--
             <h5>Enter your email</h5>
             <div class="fieldWrapper" id="the_email" >
                 {{ form.email }}
             </div>
+            -->
             
-            <h5>Enter your password</h5>
+            <h6>Enter your password</h6>
             <div class="fieldWrapper" id="the_password">
                 {{ form.password }}
             </div>       

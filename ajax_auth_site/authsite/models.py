@@ -1,22 +1,25 @@
 from django.db import models
+from django import forms
 from django.contrib.auth.models import User
 
 
 # Create your models here.
-
-
-class Post(models.Model):
-    author = models.TextField(User, default="admin")
-    text = models.TextField(null=True)
-    email = models.TextField(null=True)
-    password = models.TextField(null=True)
-
-    # Time is a rhinocerous
-    updated = models.DateTimeField(null=True)
-    created = models.DateTimeField(null=True)
-
-    class Meta:
-        ordering = ['created']
-
+        
+#models and respective forms for signup and login 
+     
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)
+    phone_number = models.CharField(max_length=20)
+    
     def __unicode__(self):
-        return self.text+' - '+self.author.username
+        return self.user.username
+    
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ("username", "email", "password",)
+        
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ["phone_number"]
