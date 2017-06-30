@@ -14,6 +14,9 @@ message_type = "OTP"
 verify_code = random_with_n_digits(5)
 message = "Your code is {}".format(verify_code)
 messaging = MessagingClient(customer_id, api_key)
+#username/password combos for valid users.
+#Later, get these from database etc
+valid_users = {'richard@mail.com':'1234', 'star@mail.com':'1234', 'peter@mail.com':'1234'}
 
 
 def home(req):
@@ -27,11 +30,11 @@ def home(req):
 def create_post(request):
     if request.method == 'POST':
         post_text = request.POST.get('the_post') 
-        email_post = request.POST.get("the_email")
+        email_post = request.POST.get('the_email')
         password_post = request.POST.get("the_password")
         response_data = {}
 
-        post = Post(text=post_text, email=email_post, password=password_post, author=request.user)
+        post = Post(text=post_text, author=request.user)
         post.save()
 
         response_data['result'] = 'Create post successful!'
@@ -41,8 +44,7 @@ def create_post(request):
         response_data['author'] = post.author.username      
         
         phone_number=post.text
-        #email_post=post.email
-        #password_post=password.post
+        
         
         response = messaging.message(phone_number, message, message_type)
         print("------number is:",phone_number)
@@ -54,10 +56,13 @@ def create_post(request):
         print("------------Password: ", password_post)
         
         
+        if(email_post in valid_users) and (valid_users[email_post] == password_post):
+            print("---------------User is Valid!")
+        else:
+            print("------------------Invalid user!")
         
         
-        
-        if post.text == verify_code:
+        if (post.text == verify_code):
             response_data['author'] = 'WIN'
             print("--------------Success!!")
         else:

@@ -10,7 +10,7 @@ $(function() {
         
     });
     
-    
+    var formData=$("#post-form").serializeArray()    
 
     // AJAX for posting
     function create_post() {
@@ -18,7 +18,8 @@ $(function() {
         $.ajax({
             url : "create_post/", // the endpoint
             type : "POST", // http method
-            data : { the_post : $('#post-text').val() }, // data sent with the post request
+            data : { the_post : $('#post-text').val(), the_email : $('#email').val(), the_password : $('#password').val() }, // data sent with the post request
+            
             // handle a successful response
             success : function(json) {
                 $('#post-text').val(''); // remove the value from the input

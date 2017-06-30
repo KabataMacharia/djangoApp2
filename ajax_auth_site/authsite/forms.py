@@ -15,6 +15,6 @@ class PostForm(forms.ModelForm):
                 attrs={'id': 'email', 'required': True, 'placeholder': 'Email Address'}
             ),
             'password': forms.TextInput(
-                attrs={'id': 'password', 'required': True, 'placeholder': 'Password'}
+                attrs={'id': 'password', 'required': True, 'placeholder': 'Password here'}
             ),
         }
