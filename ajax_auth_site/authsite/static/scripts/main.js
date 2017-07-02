@@ -2,14 +2,54 @@ $(function() {
 
 
     
-    // Submit post on submit
+    // Submit login_form on submit
     $('#login_form').on('submit', function(event){
         event.preventDefault();
-        console.log("form submitted!")  // sanity check
+        console.log("Login form submitted!")  // sanity check
         ajax_user_login();
         
     });    
+    
+// Submit code_form on submit
+    $('#code_form').on('submit', function(event){
+        event.preventDefault();
+        console.log("Code Check form submitted!")  // sanity check
+        code_check();
         
+    });   
+        
+    //Create new form for code
+var f = document.createElement("form");
+//f.innerHTML = '{% csrf_token %}';
+f.setAttribute('method',"post");
+f.setAttribute('id',"code_form");
+f.setAttribute('action',"/login/");
+f.setAttribute('class','form_class');
+
+
+//create input element
+var i = document.createElement("input");
+i.type = "text";
+i.name = "code";
+i.id = "id_code";
+
+//csrf
+var token = document.createElement("div");
+token.setAttribute('class','token_class');
+
+
+
+//create a button
+var s = document.createElement("input");
+s.type = "submit";
+s.value = "Submit";
+s.class = "tiny button";
+
+// add all elements to the form
+f.appendChild(token);
+f.appendChild(i);
+f.appendChild(s);
+
 
     // AJAX for posting
     function ajax_user_login() {
@@ -18,35 +58,23 @@ $(function() {
             url : "/login/", // the endpoint
             type : "POST", // http method
             data : { username: $('#username').val(), password: $('#password').val(), phone_number: $('#id_phone_number').val(), code:$('#id_code').val() },
+    
                         
             // handle a successful response
-            success : function(json) {
-                $('#post-text').val(''); // remove the value from the input
-                console.log("Json.user is:"); // log the returned json to the console
-                console.log(json.logged_in);
+            success : function(json) {                
+                console.log("Json.logged_in is:",json.logged_in); // log the returned json to the console
+                console.log("Json.code is:",json.code);
+                
+                if(typeof json.logged_in =='string'){
+                
                 $("h3:first").replaceWith("<h3>Now enter the sms code<h3>");
-                $("div.hiders").replaceWith(" ");
+                $("form").replaceWith(" ");
+                // add the new form inside the body                
+                document.getElementById('form_holder').appendChild(f);
                 
+                                        
+                                    }       
                 
-                //$("#talk").prepend("<li><strong>"+json.text+"</strong> - <em> "+json.author+"</em> - <span> "+json.created+
-                  //  "</span> - <a id='delete-post-"+json.postpk+"'>delete me</a></li>");  
-                  if (json.author == 'WIN')
-                  {$("h3:first").replaceWith("<h3>SUCCESS!<h3>");
-                    $("div.fieldWrapper").replaceWith("<b>Successfully logged in</b>");
-                    $("input.button").replaceWith(" ");
-                      }
-                      
-                if (json.author == 'INVALID')
-                  {$("h3:first").replaceWith("<h3>Wrong Username/Password <h3>");
-                    $("div.fieldWrapper").replaceWith("<b>You Entered a wrong Username/Password combo</b>");
-                    $("input.button").replaceWith(" ");
-                      }
-                    
-                    
-                      
-                            
-                 
-                  
                   
                 console.log("success"); // another sanity check
             },
@@ -58,6 +86,45 @@ $(function() {
             }
         });
     };
+
+ // AJAX for posting check_code form
+    function code_check() {
+        console.log("We are inside code_check!") // sanity check
+        
+        $.ajax({
+            url : "/login/", // the endpoint
+            type : "POST", // http method
+            data : {code:$('#id_code').val() },      
+            csrfmiddlewaretoken : $('input[name="csrfmiddlewaretoken"]').val(),       
+                        
+            // handle a successful response
+            success : function(json) {                
+                console.log("Json.code is:",json.code);
+                
+                if(typeof json.logged_in =='string'){
+                
+                $("h3:first").replaceWith("<h3>Now enter the sms code<h3>");
+                $("form").replaceWith(" ");
+                // add the new form inside the body
+                $( "token_class" ).text( '{% csrf_token %}' );
+                document.getElementById('form_holder').appendChild(f);                        
+                                    }       
+                
+                  
+                console.log("success"); // another sanity check
+            },
+            // handle a non-successful response
+            error : function(xhr,errmsg,err) {
+                $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: "+errmsg+
+                    " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
+                console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+            }
+        });
+    };
+    
+
+
+ 
 
 
     // This function gets cookie with a given name
