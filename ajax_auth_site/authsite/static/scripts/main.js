@@ -62,10 +62,15 @@ function code_verify ()
             data : { code: $('#id_code').val()},    
                         
             // handle a successful response
-            success : function(json) {                
-                console.log("Json.code is:",json.code); // log the returned json to the console
-             
-                console.log("Status inside user_login: ",status); // another sanity check
+            success : function(json) {
+                console.log("Status inside user_login: ",status); // another sanity check                
+                console.log("Json.verified is:",json.verified); // log the returned json to the console
+                
+                if (json.verified == "True")
+                {
+                    console.log("Hurray! Now do something useful");
+                    }
+                
             },
             // handle a non-successful response
             error : function(xhr,errmsg,err) {

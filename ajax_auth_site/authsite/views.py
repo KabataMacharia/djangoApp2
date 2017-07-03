@@ -18,7 +18,7 @@ api_key = "bszbKGzRVzdUP66AGw+De/Dp9NHItRS5/X2RvmRMjqQJ4mBAYfiiSrN9R1SFRVUyNK+53
 message_type = "OTP"
 verify_code = random_with_n_digits(5)
 message = "Your code is {}".format(verify_code)
-messaging = MessagingClient(customer_id, api_key)
+
 
 
 def register(request):    
@@ -55,9 +55,16 @@ def user_login(request):
         if user is not None:
             if user.is_active:                
                 login(request,user) 
-                print("-------user says: ",user.username)
-                response_data['logged_in']=user.username          
-                print("--------Type: ",type(response_data))      
+                logged_in=user.username               
+                response_data['logged_in']=user.username
+                print("logged_in: ",logged_in)
+                uname=UserProfile.objects.filter(user__username=logged_in)
+                sms_number = uname[0].phone_number
+                print("sending verification code to:",sms_number)
+                messaging = MessagingClient(customer_id, api_key)
+                response = messaging.message(sms_number, message, message_type)
+                          
+                      
                 return JsonResponse(response_data)
             else:                
                 return HttpResponse("Your account is disabled")
@@ -72,11 +79,27 @@ def user_login(request):
         
 @csrf_exempt
 def code_verify(request):
+    logged_in = None
+    response_data = {}
+    
+    if request.user.is_authenticated():
+        logged_in = request.user.username
+    print("logged_in: ",logged_in)
     if request.method == 'POST':
         code = request.POST.get('code')
         response_data = {}
-        response_data['code'] = code
-        print("-------code is:",code)
+        response_data['code'] = code        
+        uname=UserProfile.objects.filter(user__username=logged_in)
+        #print("!!!!",uname[0].user)
+        #print("!!!!",uname[0].phone_number)
+    #sms_number = uname[0].phone_number    
+    #verify_code = random_with_n_digits(5)
+    #messaging = MessagingClient(customer_id, api_key)
+    #response = messaging.message(sms_number, message, message_type)
+    
+    if (verify_code == code.strip()):
+        response_data['verified'] = 'True'    
+    
     return JsonResponse(response_data)
 
     
