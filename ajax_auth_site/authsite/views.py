@@ -4,6 +4,7 @@ from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import authenticate
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from authsite.models import *
 from authsite.forms import *
 
@@ -18,9 +19,7 @@ message_type = "OTP"
 verify_code = random_with_n_digits(5)
 message = "Your code is {}".format(verify_code)
 messaging = MessagingClient(customer_id, api_key)
-#username/password combos for valid users.
-#Later, get these from database etc
-#valid_users = {'richard@mail.com':'1234', 'star@mail.com':'1234', 'peter@mail.com':'1234'}
+
 
 def register(request):    
     registered = False
@@ -43,12 +42,14 @@ def register(request):
         uform = UserForm()
         pform = UserProfileForm()        
     return render(request, 'authsite/register.html', {'uform': uform, 'pform': pform, 'registered': registered })
-    
+
+@csrf_exempt 
 def user_login(request):    
     response_data = {}
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
+        
         
         user = authenticate(username=username, password=password)
         if user is not None:
@@ -68,6 +69,15 @@ def user_login(request):
     else:        
         #login now leads to login.html
         return render(request,'authsite/login.html',{})
+        
+@csrf_exempt
+def code_verify(request):
+    if request.method == 'POST':
+        code = request.POST.get('code')
+        response_data = {}
+        response_data['code'] = code
+        print("-------code is:",code)
+    return JsonResponse(response_data)
 
     
 @login_required

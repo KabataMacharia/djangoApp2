@@ -25,18 +25,20 @@
 
 
     <div class="columns large-12" id="form_holder">
-        
+                
         <FORM id="login_form" method="post" action="/login/">
         {% csrf_token %}
-        <div class = "username_pass">
+        <div class = "username_pass" id = "username_pass">
                 Username:
                 <input type="text" name="username" value="" id="username" size="50" />
             <br />
                 Password:
                 <input type="password" name="password" value="" id="password" size="50" />
-                </div>
-                <br />
-            
+                </div>          
+                                      
+                   <input type="text" name="code" id="id_code"/> 
+                
+          
         <INPUT type="submit" name="submit" value="Submit" class="tiny button" />
         </FORM>
         
