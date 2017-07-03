@@ -40,8 +40,13 @@ $(function() {
                 $("div.username_pass").hide()
                  $("#id_code").show() 
                  status = "DONE";               
-                                    }   
-                console.log("Status inside user_login: ",status); // another sanity check
+                                    }
+                    else{
+                        
+                        alert("Invalid login credentials.");
+                        
+                        }
+                console.log("Status inside user_login: ",status); 
             },
             // handle a non-successful response
             error : function(xhr,errmsg,err) {
@@ -69,7 +74,14 @@ function code_verify ()
                 if (json.verified == "True")
                 {
                     console.log("Hurray! Now do something useful");
+                    $("h3:first").replaceWith("<h3>Congratulations, successfully verified<h3>");
+                    $("form").replaceWith('<form action="/login/"><input type="Submit" value="Go Back" class="tiny button" /></form>');
+                    
                     }
+                    else
+                    {
+                        alert("Not the SMS code we sent. Check again");
+                        }
                 
             },
             // handle a non-successful response

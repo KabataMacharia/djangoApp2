@@ -43,7 +43,7 @@ def register(request):
         pform = UserProfileForm()        
     return render(request, 'authsite/register.html', {'uform': uform, 'pform': pform, 'registered': registered })
 
-@csrf_exempt 
+ 
 def user_login(request):    
     response_data = {}
     if request.method == 'POST':
@@ -71,7 +71,7 @@ def user_login(request):
                 
         else:            
             #return 'invalid login eorror'
-            print("Invalid login detauls "+username+" "+password)
+            print("Invalid login details "+username+" "+password)
             return render(request,'authsite/login.html', {})
     else:        
         #login now leads to login.html
@@ -90,13 +90,7 @@ def code_verify(request):
         response_data = {}
         response_data['code'] = code        
         uname=UserProfile.objects.filter(user__username=logged_in)
-        #print("!!!!",uname[0].user)
-        #print("!!!!",uname[0].phone_number)
-    #sms_number = uname[0].phone_number    
-    #verify_code = random_with_n_digits(5)
-    #messaging = MessagingClient(customer_id, api_key)
-    #response = messaging.message(sms_number, message, message_type)
-    
+            
     if (verify_code == code.strip()):
         response_data['verified'] = 'True'    
     
