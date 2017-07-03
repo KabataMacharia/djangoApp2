@@ -6,7 +6,7 @@
         <P>
         {% if user.is_authenticated %}
                 Welcome {{ user.username }}  |
-                <A href="/restricted/">Restricted Page</A> |
+                
                 <A href="/logout/">Logout</A>
         {% else %}
                 <A href="/register/">Register</A> |
@@ -14,7 +14,7 @@
         {% endif %}
         </P>
         
-        <h3>Register Here</h3>
+        <h3>Welcome</h3>
         
     </div>
 </div>
@@ -25,7 +25,7 @@
         {% if registered %}
          <h3> Thank you for registering. </h3>
         <br>
-        <A href="/">Back</A>
+        <form action="/login/"><input type="Submit" value="Go Back" class="tiny button" /></form>
 {% else %}
         
         <form id="user_form" method="post" action="/register/" >
@@ -36,13 +36,6 @@
                 <INPUT type="submit" name="submit" value="Submit" class="tiny button" />
         </form>
 {% endif %}
-        
-    </div>
-</div>
-
-<!-- The feed -->
-<div class="row white">
-    <div class="columns large-12">
         
     </div>
 </div>

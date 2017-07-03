@@ -1,4 +1,5 @@
 $(function() {
+    console.log("current URL:",window.location.href);
     $("#id_code").hide()
     var status = "";
     
@@ -18,6 +19,53 @@ $(function() {
        
         
     });    
+    // register form    
+    $('#user_form').on('submit', function(event){
+        event.preventDefault();
+        console.log("At Register Form!: ",status);        
+        console.log("Submit button activated!");  // sanity check 
+        register_funct();       
+    });    
+
+function register_funct(){
+    
+    console.log("Inside register_funct");
+    $.ajax({
+        url: "/register/",
+        type : "POST",
+        data : {phone_number:$('#id_phone_number').val(), username:$('#id_username').val(), email:$('#id_email').val(), password:$('#id_password').val() },
+        success : function(json)
+        {
+            console.log("Username",json.username);
+            //anything else I might think of
+            
+            console.log("uform_errors",json.uform_errors);            
+            console.log("pform_errors",json.pform_errors);
+            
+            //do we have an error? username exists or such stuff
+            console.log("Errors",json.error_present);
+            
+            if (json.error_present == 'YES')
+            {
+                alert(json.username_error);
+                
+                }
+                else
+                { 
+                    //no error
+                    window.location.replace('/login/');
+                    }
+            
+            }, 
+        error : function(xhr,errmsg,err)
+        {
+            console.log("We have an error!");
+            console.log(xhr.status + ": " + xhr.responseText);
+            
+            }
+        });
+    
+    };
 
     // AJAX for posting
     function ajax_user_login() {

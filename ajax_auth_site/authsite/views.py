@@ -28,19 +28,47 @@ def register(request):
     registered = False
     
     if request.method == 'POST':
+        response_data = {}
         uform = UserForm(data=request.POST)
         pform = UserProfileForm(data = request.POST)
+        print("uform type",type(uform))
+        
+        #print("pform:",pform)
+        #print("uform:",uform)
+        #-----Be sure to re-create uform and pform!-----#
+        phone_number = request.POST.get('phone_number')
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        response_data['phone_number'] = phone_number
+        response_data['username'] = username
+        response_data['email'] = email
+        response_data['password'] = password
+        response_data['error_present'] = 'NO'
+        
+    
+        pform = UserProfileForm({'phone_number':phone_number})
+        uform = UserForm({'username':username, 'email':email, 'password':password})
+        #print("PFORM:",pform)
+        #print("UFORM:",uform)
+        
         if uform.is_valid() and pform.is_valid():
             user = uform.save()
             pw = user.password
             user.set_password(pw)
-            user.save()
+            user.save()  
             profile = pform.save(commit=False)
             profile.user = user
-            profile.save()
+            profile.save() 
             registered = True
+            return JsonResponse(response_data)
         else:
-            print(uform.errors, pform.errors)
+            response_data = {}
+            response_data['uform_errors'] = uform.errors
+            response_data['pform_errors'] = pform.errors
+            response_data['username_error'] = uform.errors['username']  
+            response_data['error_present'] = 'YES'
+            return JsonResponse(response_data)
     else:
         uform = UserForm()
         pform = UserProfileForm()        
@@ -96,8 +124,7 @@ def code_verify(request):
     if request.method == 'POST':
         code = request.POST.get('code')
         response_data = {}
-        response_data['code'] = code        
-        uname=UserProfile.objects.filter(user__username=logging_in)
+        response_data['code'] = code            
             
     if (verify_code == code.strip()):
         response_data['verified_user'] = 'True'
