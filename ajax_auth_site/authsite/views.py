@@ -18,6 +18,9 @@ api_key = "bszbKGzRVzdUP66AGw+De/Dp9NHItRS5/X2RvmRMjqQJ4mBAYfiiSrN9R1SFRVUyNK+53
 message_type = "OTP"
 verify_code = random_with_n_digits(5)
 message = "Your code is {}".format(verify_code)
+verified=False
+logging_in=None
+userobj=None
 
 
 
@@ -50,19 +53,24 @@ def user_login(request):
         username = request.POST['username']
         password = request.POST['password']
         
-        
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            if user.is_active:                
-                login(request,user) 
-                logged_in=user.username               
-                response_data['logged_in']=user.username
-                print("logged_in: ",logged_in)
-                uname=UserProfile.objects.filter(user__username=logged_in)
+        global userobj
+        userobj = authenticate(username=username, password=password)
+        if userobj is not None:
+            if userobj.is_active:                
+                login(request,userobj) 
+                global logging_in
+                logging_in=userobj.username  
+                logout(request)             
+                response_data['logging_in']=logging_in
+                print("logging_in: ",logging_in) 
+                uname=UserProfile.objects.filter(user__username=logging_in)
                 sms_number = uname[0].phone_number
                 print("sending verification code to:",sms_number)
+                print("Verify Code",verify_code)
                 messaging = MessagingClient(customer_id, api_key)
                 response = messaging.message(sms_number, message, message_type)
+                if verified != True:
+                    logout(request)
                           
                       
                 return JsonResponse(response_data)
@@ -79,20 +87,25 @@ def user_login(request):
         
 @csrf_exempt
 def code_verify(request):
-    logged_in = None
-    response_data = {}
+    #logging_in = None
+    response_data = {}    
     
-    if request.user.is_authenticated():
-        logged_in = request.user.username
-    print("logged_in: ",logged_in)
+    #if request.user.is_authenticated():
+        #logging_in = request.user.username
+    print("logging_in: ",logging_in)
     if request.method == 'POST':
         code = request.POST.get('code')
         response_data = {}
         response_data['code'] = code        
-        uname=UserProfile.objects.filter(user__username=logged_in)
+        uname=UserProfile.objects.filter(user__username=logging_in)
             
     if (verify_code == code.strip()):
-        response_data['verified'] = 'True'    
+        response_data['verified_user'] = 'True'
+        global verified
+        verified = True 
+        login(request,userobj)
+    else:
+        logout(request)
     
     return JsonResponse(response_data)
 

@@ -31,13 +31,14 @@ $(function() {
                         
             // handle a successful response
             success : function(json) {                
-                console.log("Json.logged_in is:",json.logged_in); // log the returned json to the console
+                console.log("Json.logging_in is:",json.logging_in); // log the returned json to the console
                 
                 
-                if(typeof json.logged_in =='string'){
+                if(typeof json.logging_in =='string'){
                 
                 $("h3:first").replaceWith("<h3>Now enter the sms code<h3>");                
                 $("div.username_pass").hide()
+                $("#login_link").hide()
                  $("#id_code").show() 
                  status = "DONE";               
                                     }
@@ -69,13 +70,14 @@ function code_verify ()
             // handle a successful response
             success : function(json) {
                 console.log("Status inside user_login: ",status); // another sanity check                
-                console.log("Json.verified is:",json.verified); // log the returned json to the console
+                console.log("Json.verified is:",json.verified_user); // log the returned json to the console
                 
-                if (json.verified == "True")
+                if (json.verified_user == "True")
                 {
                     console.log("Hurray! Now do something useful");
                     $("h3:first").replaceWith("<h3>Congratulations, successfully verified<h3>");
                     $("form").replaceWith('<form action="/login/"><input type="Submit" value="Go Back" class="tiny button" /></form>');
+                    $("#login_link").show()
                     
                     }
                     else
