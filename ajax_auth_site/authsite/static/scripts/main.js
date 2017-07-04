@@ -33,22 +33,23 @@ function register_funct(){
     $.ajax({
         url: "/register/",
         type : "POST",
-        data : {phone_number:$('#id_phone_number').val(), username:$('#id_username').val(), email:$('#id_email').val(), password:$('#id_password').val() },
+        data : {phone_number:$('#id_phone_number').val(), username:$('#id_username').val(), email:$('#id_email').val(), pass1:$('#id_password1').val(), pass2:$('#id_password2').val() },
         success : function(json)
         {
-            console.log("Username",json.username);
+            //console.log("Username",json.username);
             //anything else I might think of
             
             console.log("uform_errors",json.uform_errors);            
             console.log("pform_errors",json.pform_errors);
             
             //do we have an error? username exists or such stuff
-            console.log("Errors",json.error_present);
+            console.log("Errors",json.specific_error);
             
             if (json.error_present == 'YES')
             {
-                alert(json.username_error);
                 
+                alert(json.specific_error);
+                                
                 }
                 else
                 { 

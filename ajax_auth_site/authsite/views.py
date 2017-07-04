@@ -12,6 +12,9 @@ import json
 from telesign.messaging import MessagingClient
 from telesign.util import random_with_n_digits
 
+from bs4 import BeautifulSoup
+import re
+
 #telesign account variables
 customer_id = "1A160C03-C778-4193-B6B0-FD34DC02F357"
 api_key = "bszbKGzRVzdUP66AGw+De/Dp9NHItRS5/X2RvmRMjqQJ4mBAYfiiSrN9R1SFRVUyNK+53GcebNBwoEqjbMUSPQ=="
@@ -31,24 +34,26 @@ def register(request):
         response_data = {}
         uform = UserForm(data=request.POST)
         pform = UserProfileForm(data = request.POST)
-        print("uform type",type(uform))
-        
-        #print("pform:",pform)
-        #print("uform:",uform)
-        #-----Be sure to re-create uform and pform!-----#
+               
         phone_number = request.POST.get('phone_number')
         username = request.POST.get('username')
         email = request.POST.get('email')
-        password = request.POST.get('password')
+        password1 = request.POST.get('pass1')
+        password2 = request.POST.get('pass2')
+        
         response_data['phone_number'] = phone_number
         response_data['username'] = username
         response_data['email'] = email
-        response_data['password'] = password
+        response_data['password1'] = password1
+        response_data['password2'] = password2
         response_data['error_present'] = 'NO'
+        print("password1",password1)
+        print("password2",password2)
+        print("email",email)
         
     
         pform = UserProfileForm({'phone_number':phone_number})
-        uform = UserForm({'username':username, 'email':email, 'password':password})
+        uform = UserForm({'username':username, 'email':email, 'password1':password1, 'password2':password2})
         #print("PFORM:",pform)
         #print("UFORM:",uform)
         
@@ -65,9 +70,20 @@ def register(request):
         else:
             response_data = {}
             response_data['uform_errors'] = uform.errors
-            response_data['pform_errors'] = pform.errors
-            response_data['username_error'] = uform.errors['username']  
-            response_data['error_present'] = 'YES'
+            response_data['pform_errors'] = pform.errors            
+            response_data['error_present'] = 'YES'            
+            my_error = str(uform.errors)
+            #strip <li> tags using BeautifulSoup
+            specific_error = ' '
+            soup = BeautifulSoup(my_error, 'html.parser')
+            for a in soup.find_all('li'):
+                if a != None:
+                    for b in a.find_all('li'):
+                        x =  BeautifulSoup(str(b)).text                                                                     
+                        specific_error += x+'\n'
+                        print(specific_error)
+                
+            response_data['specific_error'] = specific_error             
             return JsonResponse(response_data)
     else:
         uform = UserForm()
