@@ -47,15 +47,11 @@ def register(request):
         response_data['password1'] = password1
         response_data['password2'] = password2
         response_data['error_present'] = 'NO'
-        print("password1",password1)
-        print("password2",password2)
-        print("email",email)
-        
+    
     
         pform = UserProfileForm({'phone_number':phone_number})
         uform = UserForm({'username':username, 'email':email, 'password1':password1, 'password2':password2})
-        #print("PFORM:",pform)
-        #print("UFORM:",uform)
+        
         
         if uform.is_valid() and pform.is_valid():
             user = uform.save()
@@ -73,6 +69,7 @@ def register(request):
             response_data['pform_errors'] = pform.errors            
             response_data['error_present'] = 'YES'            
             my_error = str(uform.errors)
+            
             #strip <li> tags using BeautifulSoup
             specific_error = ' '
             soup = BeautifulSoup(my_error, 'html.parser')
@@ -106,7 +103,7 @@ def user_login(request):
                 logging_in=userobj.username  
                 logout(request)             
                 response_data['logging_in']=logging_in
-                print("logging_in: ",logging_in) 
+                #print("logging_in: ",logging_in) 
                 uname=UserProfile.objects.filter(user__username=logging_in)
                 sms_number = uname[0].phone_number
                 print("sending verification code to:",sms_number)
@@ -123,7 +120,7 @@ def user_login(request):
                 
         else:            
             #return 'invalid login eorror'
-            print("Invalid login details "+username+" "+password)
+            #print("Invalid login details "+username+" "+password)
             return render(request,'authsite/login.html', {})
     else:        
         #login now leads to login.html
@@ -134,8 +131,6 @@ def code_verify(request):
     #logging_in = None
     response_data = {}    
     
-    #if request.user.is_authenticated():
-        #logging_in = request.user.username
     print("logging_in: ",logging_in)
     if request.method == 'POST':
         code = request.POST.get('code')
