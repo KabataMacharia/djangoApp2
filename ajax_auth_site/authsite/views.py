@@ -32,47 +32,28 @@ def register(request):
     
     if request.method == 'POST':
         response_data = {}
-        uform = UserForm(data=request.POST)
-        pform = UserProfileForm(data = request.POST)
-               
-        phone_number = request.POST.get('phone_number')
-        username = request.POST.get('username')
-        email = request.POST.get('email')
-        password1 = request.POST.get('pass1')
-        password2 = request.POST.get('pass2')
-        
-        response_data['phone_number'] = phone_number
-        response_data['username'] = username
-        response_data['email'] = email
-        response_data['password1'] = password1
-        response_data['password2'] = password2
-        response_data['error_present'] = 'NO'
-    
-    
-        pform = UserProfileForm({'phone_number':phone_number})
-        uform = UserForm({'username':username, 'email':email, 'password1':password1, 'password2':password2})
-        
-        
-        if uform.is_valid() and pform.is_valid():
+        uform = UserForm(data=request.POST) 
+        print("UFORM",uform)  
+        #
+        #return JsonResponse(response_data)
+        if uform.is_valid():
+            print("UFORM IS VALID!")
             user = uform.save()
             pw = user.password
             user.set_password(pw)
             user.save()  
-            profile = pform.save(commit=False)
-            profile.user = user
-            profile.save() 
             registered = True
+            response_data['error_present'] = 'NO' 
             return JsonResponse(response_data)
         else:
             response_data = {}
             response_data['uform_errors'] = uform.errors
-            response_data['pform_errors'] = pform.errors            
             response_data['error_present'] = 'YES'            
             my_error = str(uform.errors)
             
             #strip <li> tags using BeautifulSoup
             specific_error = ' '
-            soup = BeautifulSoup(my_error, 'html.parser')
+            soup = BeautifulSoup(my_error, "html.parser")
             for a in soup.find_all('li'):
                 if a != None:
                     for b in a.find_all('li'):
@@ -83,9 +64,8 @@ def register(request):
             response_data['specific_error'] = specific_error             
             return JsonResponse(response_data)
     else:
-        uform = UserForm()
-        pform = UserProfileForm()        
-    return render(request, 'authsite/register.html', {'uform': uform, 'pform': pform, 'registered': registered })
+        uform = UserForm()              
+    return render(request, 'authsite/register.html', {'uform': uform, 'registered': registered })
 
  
 def user_login(request):    

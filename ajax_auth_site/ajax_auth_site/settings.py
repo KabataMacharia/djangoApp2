@@ -26,6 +26,7 @@ SECRET_KEY = 'aad+a+0=_g5+n$0zce#*gr!rrbtdt17#sf6m&g*ii^9xs!uup('
 DEBUG = True
 
 ALLOWED_HOSTS = []
+AUTH_USER_MODEL = 'authsite.User'
 
 
 # Application definition

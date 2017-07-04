@@ -14,9 +14,7 @@ $(function() {
         else
         {
             code_verify();
-            }
-        
-       
+            }     
         
     });    
     // register form    
@@ -33,28 +31,33 @@ function register_funct(){
     $.ajax({
         url: "/register/",
         type : "POST",
-        data : {phone_number:$('#id_phone_number').val(), username:$('#id_username').val(), email:$('#id_email').val(), pass1:$('#id_password1').val(), pass2:$('#id_password2').val() },
+        data : {phone_number:$('#id_phone_number').val(), username:$('#id_username').val(), email:$('#id_email').val(), password1:$('#id_password1').val(), password2:$('#id_password2').val() },
+           
         success : function(json)
         {
-            //console.log("Username",json.username);
-            //anything else I might think of
+           //anything else I might think of 
+           console.log("phone_number",json.phone_number);
+           console.log("username",json.username);
+           console.log("email",json.email);           
+            console.log("uform_errors",json.uform_errors);           
             
-            console.log("uform_errors",json.uform_errors);            
-            console.log("pform_errors",json.pform_errors);
             
             //do we have an error? username exists or such stuff
             console.log("Errors",json.specific_error);
             
             if (json.error_present == 'YES')
             {
-                
+                                
                 alert(json.specific_error);
                                 
                 }
                 else
                 { 
                     //no error
-                    window.location.replace('/login/');
+                    console.log("phone_number",json.phone_number);
+                    console.log("username",json.username);
+                    console.log("email",json.email); 
+                    //window.location.replace('/login/');
                     }
             
             }, 
