@@ -35,7 +35,7 @@ class MyUserManager(BaseUserManager):
 class User(AbstractBaseUser):  
     phone_number = models.CharField(max_length=20) 
     username = models.CharField(max_length=20, unique=True) 
-    email = models.CharField(max_length=20, blank=True)
+    email = models.CharField(max_length=50, blank=True)
     password1 = models.CharField(max_length=20)
     password = models.CharField(max_length=20)
     password2 = models.CharField(max_length=20)
@@ -56,7 +56,7 @@ class User(AbstractBaseUser):
         return self.email
 
     def __str__(self):              # __unicode__ on Python 2
-        return self.email
+        return self.username
 
     def has_perm(self, perm, obj=None):
         "Does the user have a specific permission?"

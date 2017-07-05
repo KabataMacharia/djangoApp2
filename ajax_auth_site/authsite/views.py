@@ -36,6 +36,20 @@ def register(request):
         print("UFORM",uform)  
         #
         #return JsonResponse(response_data)
+        cleaned_email=uform.clean_email()
+        cleaned_username=uform.clean_username()
+        cleaned_password=uform.clean_password()
+        cleaned_phone_number=uform.clean_phone_number()
+        
+        print(cleaned_username)
+        print(cleaned_email)        
+        print(cleaned_phone_number)
+        print("cleaned_password_response:",cleaned_password)
+        
+        if (type(cleaned_password) == dict):
+            uform.add_error(None,cleaned_password)
+        if (type(cleaned_email) == dict):
+            uform.add_error(None,cleaned_email)
         if uform.is_valid():
             print("UFORM IS VALID!")
             user = uform.save()
