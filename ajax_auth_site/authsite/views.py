@@ -53,7 +53,7 @@ def register(request):
         if uform.is_valid():
             print("UFORM IS VALID!")
             user = uform.save()
-            pw = user.password
+            pw = cleaned_password
             user.set_password(pw)
             user.save()  
             registered = True
@@ -84,10 +84,12 @@ def register(request):
  
 def user_login(request):    
     response_data = {}
+    print('REQUEST.METHOD:',request.method) 
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        
+        #funct = request.POST.get('funct')
+            
         global userobj
         userobj = authenticate(username=username, password=password)
         if userobj is not None:
@@ -98,7 +100,7 @@ def user_login(request):
                 logout(request)             
                 response_data['logging_in']=logging_in
                 #print("logging_in: ",logging_in) 
-                uname=UserProfile.objects.filter(user__username=logging_in)
+                uname=User.objects.filter(username=logging_in)
                 sms_number = uname[0].phone_number
                 print("sending verification code to:",sms_number)
                 print("Verify Code",verify_code)
@@ -106,8 +108,6 @@ def user_login(request):
                 response = messaging.message(sms_number, message, message_type)
                 if verified != True:
                     logout(request)
-                          
-                      
                 return JsonResponse(response_data)
             else:                
                 return HttpResponse("Your account is disabled")
@@ -116,6 +116,39 @@ def user_login(request):
             #return 'invalid login eorror'
             #print("Invalid login details "+username+" "+password)
             return render(request,'authsite/login.html', {})
+            
+    elif(request.method == 'POST' and request.GET['code']!= None):
+        #start code been submitted
+        print("WE have CODE")
+        response_data = {} 
+        print("logging_in: ",logging_in)
+        #code = request.POST.get['code']            
+        if request.method == 'GET':
+            code = request.GET['code']
+            print('CODE GET IS:',code)
+            response_data = {}
+            response_data['code'] = code            
+                
+        if (verify_code == code.strip()):
+            response_data['verified_user'] = 'True'
+            global verified
+            verified = True 
+            login(request,userobj)
+        else:
+            logout(request)
+        
+        return JsonResponse(response_data) 
+        
+    elif request.method == 'GET':
+        print("WE HAVE GET")
+        try:
+            x=request.GET['code']
+            print(x)
+            print("HURRAY!")
+        except:
+            print("WE HAVE NO CODE")
+        return render(request,'authsite/login.html',{})
+                       
     else:        
         #login now leads to login.html
         return render(request,'authsite/login.html',{})

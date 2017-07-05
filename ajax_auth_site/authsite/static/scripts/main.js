@@ -13,6 +13,7 @@ $(function() {
         }
         else
         {
+            
             code_verify();
             }     
         
@@ -79,7 +80,7 @@ function register_funct(){
         $.ajax({
             url : "/login/", // the endpoint
             type : "POST", // http method
-            data : { username: $('#username').val(), password: $('#password').val() },    
+            data : { username: $('#username').val(), password: $('#password').val(), csrfmiddlewaretoken: csrftoken, funct:'login'},    
                         
             // handle a successful response
             success : function(json) {                
@@ -88,7 +89,8 @@ function register_funct(){
                 
                 if(typeof json.logging_in =='string'){
                 
-                $("h3:first").replaceWith("<h3>Now enter the sms code<h3>");                
+                $("h3:first").replaceWith("<h3>Now enter the sms code<h3>");
+                //$("#submit_button").replaceWith('<form action="/login/" method="GET"><input type="Submit" value="Verify" class="tiny button" /></form>');                
                 $("div.username_pass").hide()
                 $("#login_link").hide()
                  $("#id_code").show() 
@@ -100,6 +102,8 @@ function register_funct(){
                         
                         }
                 console.log("Status inside user_login: ",status); 
+              
+                
             },
             // handle a non-successful response
             error : function(xhr,errmsg,err) {
@@ -115,14 +119,15 @@ function code_verify ()
     console.log("Inside code_verify");
     
             $.ajax({
-            url : "/verify/", // the endpoint
-            type : "POST", // http method
-            data : { code: $('#id_code').val()},    
+            url : "/login/", // the endpoint
+            type : "GET", // http method
+            data : { code: $('#id_code').val(), csrfmiddlewaretoken: csrftoken, funct:'verify'},    
                         
             // handle a successful response
             success : function(json) {
                 console.log("Status inside user_login: ",status); // another sanity check                
                 console.log("Json.verified is:",json.verified_user); // log the returned json to the console
+                
                 
                 if (json.verified_user == "True")
                 {

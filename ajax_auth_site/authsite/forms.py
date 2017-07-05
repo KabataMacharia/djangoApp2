@@ -46,10 +46,8 @@ class UserForm(forms.ModelForm):
             print("Passwords don't match")            
             password_match = False
             errors['password2'] = "Passwords don't match"
-            return errors
-        
+            return errors       
             
-        
     def clean_email(self):
         email = self.cleaned_data.get("email")
         errors=dict()
