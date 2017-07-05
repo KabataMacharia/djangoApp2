@@ -44,12 +44,56 @@ function register_funct(){
             
             
             //do we have an error? username exists or such stuff
-            console.log("Errors",json.specific_error);
+            //console.log("Errors",json.specific_error);
             
             if (json.error_present == 'YES')
             {
                                 
-                alert(json.specific_error);
+                //alert(json.specific_error);
+                
+                //Display Json errors on relevant field labels                
+                var error_array = json.specific_error.split("!");
+                error_no = error_array.length;                
+                
+                //loop through as many errors as are present
+                for (i=0; i<error_no; i++)
+                {
+                    current = (error_array[i]);
+                    console.log(current);
+                    if (current.includes('email') == true)
+                    { 
+                        warning = current.replace('email :', '');
+                        warning.bold();
+                        $('label[for="id_email"]').text ('Email:'+ warning); 
+                        $('label[for="id_email"]').css("color", "red"); 
+                        }
+                        
+                    if (current.includes('username') == true)
+                    { 
+                        warning = current.replace('username :', '');
+                        warning.bold();
+                        $('label[for="id_username"]').text ('Username:'+ warning); 
+                        $('label[for="id_username"]').css("color", "red");                      
+                        
+                        }
+                    if (current.includes('password2') == true)
+                    { 
+                        warning = current.replace('password2 :', '');
+                        warning.bold();
+                        $('label[for="id_password2"]').text ('Password2:'+ warning); 
+                        $('label[for="id_password2"]').css("color", "red");                      
+                        
+                        }
+                    if (current.includes('phone_number') == true)
+                    { 
+                        warning = current.replace('phone_number :', '');                        
+                        $('label[for="id_phone_number"]').text ('Phone number:'+ warning); 
+                        $('label[for="id_phone_number"]').css("color", "red");                      
+                        
+                        }
+                                            
+                    }
+                
                                 
                 }
                 else
