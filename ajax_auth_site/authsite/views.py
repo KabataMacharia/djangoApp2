@@ -34,8 +34,7 @@ def register(request):
         response_data = {}
         uform = UserForm(data=request.POST) 
         print("UFORM",uform)  
-        #
-        #return JsonResponse(response_data)
+        
         cleaned_email=uform.clean_email()
         cleaned_username=uform.clean_username()
         cleaned_password=uform.clean_password()
@@ -83,13 +82,13 @@ def register(request):
 
  
 def user_login(request):    
-    response_data = {}
-    print('REQUEST.METHOD:',request.method) 
+    response_data = {}    
     if request.method == 'POST':
         username = request.POST['username']
-        password = request.POST['password']
-        #funct = request.POST.get('funct')
-            
+        password = request.POST['password']       
+        
+        #Authenticate our user, but don't complete login yet.
+        #Save the User Object for login after two-step completion  
         global userobj
         userobj = authenticate(username=username, password=password)
         if userobj is not None:
@@ -99,13 +98,18 @@ def user_login(request):
                 logging_in=userobj.username  
                 logout(request)             
                 response_data['logging_in']=logging_in
-                #print("logging_in: ",logging_in) 
+                
+                #find out User's number                 
                 uname=User.objects.filter(username=logging_in)
                 sms_number = uname[0].phone_number
                 print("sending verification code to:",sms_number)
                 print("Verify Code",verify_code)
+                
+                #Send verification message once we have authenticated our user
                 messaging = MessagingClient(customer_id, api_key)
                 response = messaging.message(sms_number, message, message_type)
+                
+                #If they don't correctly enter code, log them out instantly
                 if verified != True:
                     logout(request)
                 return JsonResponse(response_data)
@@ -113,68 +117,41 @@ def user_login(request):
                 return HttpResponse("Your account is disabled")
                 
         else:            
-            #return 'invalid login eorror'
-            #print("Invalid login details "+username+" "+password)
+            #return 'invalid login error' and redirect to login page
+            print("Invalid login details "+username+" "+password)
             return render(request,'authsite/login.html', {})
+     
+    #Get the SMS code they've submitted
+    elif request.method == 'GET':
+        #Does the GET message include our code?        
+        try:
+            code = request.GET['code'] 
+            response_data = {}             
             
-    elif(request.method == 'POST' and request.GET['code']!= None):
-        #start code been submitted
-        print("WE have CODE")
-        response_data = {} 
-        print("logging_in: ",logging_in)
-        #code = request.POST.get['code']            
-        if request.method == 'GET':
-            code = request.GET['code']
             print('CODE GET IS:',code)
             response_data = {}
-            response_data['code'] = code            
+                             
+            if (verify_code == code.strip()):
+                print("They match")
+                response_data['verified_user'] = 'True'
                 
-        if (verify_code == code.strip()):
-            response_data['verified_user'] = 'True'
-            global verified
-            verified = True 
-            login(request,userobj)
-        else:
-            logout(request)
-        
-        return JsonResponse(response_data) 
-        
-    elif request.method == 'GET':
-        print("WE HAVE GET")
-        try:
-            x=request.GET['code']
-            print(x)
-            print("HURRAY!")
+                #User has completed two step verification, don't log them out 
+                global verified
+                verified = True 
+                login(request,userobj)
+                return JsonResponse(response_data)
+            else:
+                logout(request)
         except:
-            print("WE HAVE NO CODE")
-        return render(request,'authsite/login.html',{})
+            #WE have no code in our GET                        
+            return render(request,'authsite/login.html',{})
                        
-    else:        
+    else: 
+        #Not POST or GET with code       
         #login now leads to login.html
         return render(request,'authsite/login.html',{})
         
-@csrf_exempt
-def code_verify(request):
-    #logging_in = None
-    response_data = {}    
-    
-    print("logging_in: ",logging_in)
-    if request.method == 'POST':
-        code = request.POST.get('code')
-        response_data = {}
-        response_data['code'] = code            
-            
-    if (verify_code == code.strip()):
-        response_data['verified_user'] = 'True'
-        global verified
-        verified = True 
-        login(request,userobj)
-    else:
-        logout(request)
-    
-    return JsonResponse(response_data)
 
-    
 @login_required
 def restricted(request):
     return HttpResponse('Authsite says: since you are an authenticated user you can view this restricted page.')

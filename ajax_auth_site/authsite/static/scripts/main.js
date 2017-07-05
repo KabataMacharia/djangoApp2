@@ -58,7 +58,7 @@ function register_funct(){
                     console.log("phone_number",json.phone_number);
                     console.log("username",json.username);
                     console.log("email",json.email); 
-                    //window.location.replace('/login/');
+                    window.location.replace('/login/');
                     }
             
             }, 

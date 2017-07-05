@@ -1,7 +1,5 @@
 from django import forms
-#from django.contrib.auth.models import User
 from .models import User
-#from django.contrib.auth.forms import UserCreationForm
 from django.core import validators
 import django.contrib.auth.password_validation as password_validate
 from django.core import exceptions
@@ -33,8 +31,7 @@ class UserForm(forms.ModelForm):
             password_match = True
             print("Passwords match")            
             #Passwords match, so validate password 
-            try:
-                #validators.validate_password(password=password, user=User)
+            try:                
                 print("inside try/catch block!")
                 password_validate.validate_password(password=password2)
                 return password2
@@ -57,8 +54,7 @@ class UserForm(forms.ModelForm):
             validators.validate_email(email)
             valid_email = True                            
         except:
-            valid_email = False
-            #raise forms.ValidationError('Enter a valid email address.') 
+            valid_email = False             
             errors['email'] = "Enter a valid email address please" 
             return errors
         if valid_email:
@@ -90,12 +86,3 @@ class UserForm(forms.ModelForm):
             valid_phone_number = False
         if valid_phone_number:
             return phone_number
-            
-        
-        
-            
-
-    
-
-        
-

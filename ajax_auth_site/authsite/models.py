@@ -1,11 +1,7 @@
 from django.db import models
 from django import forms
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-
-
-
-# Create your models here.
-        
+   
 #models for signup and login 
 
 class MyUserManager(BaseUserManager):
@@ -35,10 +31,8 @@ class MyUserManager(BaseUserManager):
 class User(AbstractBaseUser):  
     phone_number = models.CharField(max_length=20) 
     username = models.CharField(max_length=20, unique=True) 
-    email = models.CharField(max_length=50, blank=True)
-    password1 = models.CharField(max_length=20)
-    password = models.CharField(max_length=20)
-    password2 = models.CharField(max_length=20)
+    email = models.CharField(max_length=50, blank=True)    
+    password = models.CharField(max_length=20)   
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -55,7 +49,7 @@ class User(AbstractBaseUser):
         # The user is identified by their email address
         return self.email
 
-    def __str__(self):              # __unicode__ on Python 2
+    def __str__(self):              
         return self.username
 
     def has_perm(self, perm, obj=None):
