@@ -12,8 +12,7 @@ import json
 from telesign.messaging import MessagingClient
 from telesign.util import random_with_n_digits
 
-from bs4 import BeautifulSoup
-import re
+from django.utils.html import strip_tags
 
 #telesign account variables
 customer_id = "1A160C03-C778-4193-B6B0-FD34DC02F357"
@@ -64,17 +63,14 @@ def register(request):
             response_data['error_present'] = 'YES'            
             my_error = str(uform.errors)
             
-            #strip <li> tags using BeautifulSoup
-            specific_error = ' '
-            soup = BeautifulSoup(my_error, "html.parser")
-            for a in soup.find_all('li'):
-                if a != None:
-                    for b in a.find_all('li'):
-                        x =  BeautifulSoup(str(b)).text                                                                     
-                        specific_error += x+'\n'
-                        print(specific_error)
-                
-            response_data['specific_error'] = specific_error             
+            #error string formatting
+            specific_error = my_error.replace('<ul class="errorlist">',' : ')
+            specific_error = strip_tags(specific_error)
+            specific_error = specific_error.replace('.','\n')
+            specific_error = specific_error.replace(' : ','',1)
+            print(specific_error)
+            
+            response_data['specific_error'] = specific_error           
             return JsonResponse(response_data)
     else:
         uform = UserForm()              

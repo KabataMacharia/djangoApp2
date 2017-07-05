@@ -42,7 +42,7 @@ class UserForm(forms.ModelForm):
         else:
             print("Passwords don't match")            
             password_match = False
-            errors['password2'] = "Passwords don't match"
+            errors['password2'] = "Passwords do not match."
             return errors       
             
     def clean_email(self):
@@ -55,7 +55,7 @@ class UserForm(forms.ModelForm):
             valid_email = True                            
         except:
             valid_email = False             
-            errors['email'] = "Enter a valid email address please" 
+            errors['email'] = "Enter a valid email address please." 
             return errors
         if valid_email:
             return email
@@ -66,12 +66,12 @@ class UserForm(forms.ModelForm):
             validators.validate_slug(username)
             valid_username = True
         except:
-            raise forms.ValidationError("Username is not valid. Special characters used")
+            raise forms.ValidationError("Username is not valid, Special characters used.")
             valid_username = False
         if valid_username:
             if(User.objects.filter(username=username).exists()):
-                print("Sorry, that Username exists.")
-                raise forms.ValidationError("Sorry, that Username exists.")
+                print("Sorry, a user with that Username already exists.")
+                raise forms.ValidationError("Sorry, a user with that Username already exists.")
                 return None
             else:
                 return username
@@ -82,7 +82,7 @@ class UserForm(forms.ModelForm):
             validators.validate_integer(phone_number)
             valid_phone_number = True
         except:
-            raise forms.ValidationError("Not a valid phone number. 0-9 only")
+            raise forms.ValidationError("Not a valid phone number, 0-9 only.")
             valid_phone_number = False
         if valid_phone_number:
             return phone_number
