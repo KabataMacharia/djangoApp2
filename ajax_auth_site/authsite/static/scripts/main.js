@@ -1,6 +1,9 @@
 $(function() {
     console.log("current URL:",window.location.href);
-    $("#id_code").hide()
+    
+    var code_box = document.getElementById('id_sms_code');
+    $('label[for="id_sms_code"]').hide();
+    code_box.style.display = 'none';
     var status = "";
     
     // Submit login_form on submit
@@ -124,7 +127,7 @@ function register_funct(){
         $.ajax({
             url : "/login/", // the endpoint
             type : "POST", // http method
-            data : { username: $('#username').val(), password: $('#password').val(), csrfmiddlewaretoken: csrftoken, funct:'login'},    
+            data : { username: $('#id_username').val(), password: $('#id_password').val(), code: $('#id_sms_code').val(), csrfmiddlewaretoken: csrftoken, funct:'login'},    
                         
             // handle a successful response
             success : function(json) {                
@@ -134,18 +137,25 @@ function register_funct(){
                 if(typeof json.logging_in =='string'){
                 
                 $("h3:first").replaceWith("<h3>Now enter the sms code<h3>");
-                //$("#submit_button").replaceWith('<form action="/login/" method="GET"><input type="Submit" value="Verify" class="tiny button" /></form>');                
-                $("div.username_pass").hide()
-                $("#login_link").hide()
-                 $("#id_code").show() 
+                
+                //$("div.username_pass").hide()
+                //$("#login_link").hide()
+                $("#incorrect_userpass").hide();
+                 code_box.style.display = ''; 
+                 $('label[for="id_sms_code"]').show();
                  status = "DONE";               
                                     }
                     else{
+                        //Look into using boostrap here
                         
-                        alert("Invalid login credentials.");
+                        
+                        $($("<p id='incorrect_userpass'>The username or password you entered is incorrect</p>").css("color", "red")).insertBefore("#submit_button");
+                        
+                        //alert("Invalid login credentials.");
                         
                         }
                 console.log("Status inside user_login: ",status); 
+                
               
                 
             },
@@ -165,7 +175,7 @@ function code_verify ()
             $.ajax({
             url : "/login/", // the endpoint
             type : "GET", // http method
-            data : { code: $('#id_code').val(), csrfmiddlewaretoken: csrftoken, funct:'verify'},    
+            data : { code: $('#id_sms_code').val(), csrfmiddlewaretoken: csrftoken, funct:'verify'},    
                         
             // handle a successful response
             success : function(json) {
@@ -175,7 +185,7 @@ function code_verify ()
                 
                 if (json.verified_user == "True")
                 {
-                    console.log("Hurray! Now do something useful");
+                    console.log("Hurray! Now do something useful");                    
                     $("h3:first").replaceWith("<h3>Congratulations, successfully verified<h3>");
                     $("form").replaceWith('<form action="/login/"><input type="Submit" value="Go Back" class="tiny button" /></form>');
                     $("#login_link").show()

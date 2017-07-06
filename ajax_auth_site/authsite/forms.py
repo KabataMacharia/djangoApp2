@@ -12,8 +12,7 @@ class UserForm(forms.ModelForm):
     password2 = forms.CharField(widget=forms.PasswordInput)
     username = forms.CharField(widget=forms.TextInput)
     email = forms.CharField(widget=forms.EmailInput)
-    phone_number = forms.IntegerField()  
-     
+    phone_number = forms.IntegerField()       
         
     class Meta:
         model = User 
@@ -86,3 +85,43 @@ class UserForm(forms.ModelForm):
             valid_phone_number = False
         if valid_phone_number:
             return phone_number
+            
+class LoginForm(forms.Form):
+    username = forms.CharField(widget=forms.TextInput)
+    password = forms.CharField(widget=forms.PasswordInput)
+    sms_code = forms.IntegerField(required=False)
+    
+    class Meta:
+        model = User
+        fields = ("username","password","sms_code")
+        
+    def clean_username(self):
+        print("Cleaning username....")
+        username = self.cleaned_data.get("username")
+        return username
+            
+    def clean_password(self):
+        password = self.cleaned_data.get("password")
+        try:            
+            print("Cleaning password....")
+            valid_password = True
+        except:
+            raise forms.ValidationError("Check your password input again!.")
+            valid_password = False
+        if valid_password:
+            return password
+            
+    def clean_sms_code(self):
+        sms_code = self.cleaned_data.get("sms_code")
+        try:
+            print("Cleaning sms code...")
+            valid_sms_code = True
+        except:
+            raise forms.ValidationError("Not a valid sms code, 0-9 only!.")
+            valid_sms_code = False
+        if valid_sms_code:
+            return sms_code
+    
+        
+        
+    

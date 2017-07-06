@@ -11,12 +11,15 @@ from authsite.forms import *
 import json
 from telesign.messaging import MessagingClient
 from telesign.util import random_with_n_digits
+#2fa
+#from telesign.api import Verify
 
 from django.utils.html import strip_tags
 
 #telesign account variables
 customer_id = "1A160C03-C778-4193-B6B0-FD34DC02F357"
 api_key = "bszbKGzRVzdUP66AGw+De/Dp9NHItRS5/X2RvmRMjqQJ4mBAYfiiSrN9R1SFRVUyNK+53GcebNBwoEqjbMUSPQ=="
+#secret_key = "bszbKGzRVzdUP66AGw+De/Dp9NHItRS5/X2RvmRMjqQJ4mBAYfiiSrN9R1SFRVUyNK+53GcebNBwoEqjbMUSPQ=="
 message_type = "OTP"
 verify_code = random_with_n_digits(5)
 message = "Your code is {}".format(verify_code)
@@ -80,8 +83,15 @@ def register(request):
 def user_login(request):    
     response_data = {}    
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']       
+        lform = LoginForm(data=request.POST)
+        print("LFORM",lform)
+        
+        username = lform.clean_username()
+        password = lform.clean_password()
+        
+        
+        if (type(username) == dict):
+            uform.add_error(None,username)
         
         #Authenticate our user, but don't complete login yet.
         #Save the User Object for login after two-step completion  
@@ -104,6 +114,11 @@ def user_login(request):
                 #Send verification message once we have authenticated our user
                 messaging = MessagingClient(customer_id, api_key)
                 response = messaging.message(sms_number, message, message_type)
+                #2fa
+                #user_verification = Verify(customer_id, secret_key)
+                #phone_info = user_verification.sms(sms_number, use_case_code="ATCK")
+                #status_info = user_verification.status(phone_info.data["reference_id"],verify_code=user_entered_verifycode)
+                #print("2FA, STATUS:",status_info.data["verify"]["code_state"])
                 
                 #If they don't correctly enter code, log them out instantly
                 if verified != True:
@@ -115,18 +130,25 @@ def user_login(request):
         else:            
             #return 'invalid login error' and redirect to login page
             print("Invalid login details "+username+" "+password)
-            return render(request,'authsite/login.html', {})
+            return render(request,'authsite/login.html', {'lform': lform})
      
     #Get the SMS code they've submitted
-    elif request.method == 'GET':
-        #Does the GET message include our code?        
+    else:
+        lform = LoginForm(data=request.GET)
+        print("LFORM GET",lform)
         try:
             code = request.GET['code'] 
-            response_data = {}             
+            #code = clean_sms_code(code)
+            #2fa
+            #user_entered_verifycode = code
+            #response_data = {}             
             
             print('CODE GET IS:',code)
             response_data = {}
-                             
+             
+            #2fa
+            #print("2FA, STATUS AFTER SUBMIT:",status_info.data["verify"]["code_state"])
+            #if status_info.data["verify"]["code_state"] == 'VALID':
             if (verify_code == code.strip()):
                 print("They match")
                 response_data['verified_user'] = 'True'
@@ -138,15 +160,13 @@ def user_login(request):
                 return JsonResponse(response_data)
             else:
                 logout(request)
+                return render(request,'authsite/login.html',{'lform': lform})
+                
         except:
-            #WE have no code in our GET                        
-            return render(request,'authsite/login.html',{})
+            #WE have no code in our GET
+            lform = LoginForm()                                   
+            return render(request,'authsite/login.html',{'lform': lform})
                        
-    else: 
-        #Not POST or GET with code       
-        #login now leads to login.html
-        return render(request,'authsite/login.html',{})
-        
 
 @login_required
 def restricted(request):
