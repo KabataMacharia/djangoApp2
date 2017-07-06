@@ -83,9 +83,9 @@ def register(request):
 def user_login(request):    
     response_data = {}    
     if request.method == 'POST':
+        #Perform validation and clean on login form, instead of using request.POST[username]"
         lform = LoginForm(data=request.POST)
-        print("LFORM",lform)
-        
+        print("LFORM",lform)        
         username = lform.clean_username()
         password = lform.clean_password()
         
