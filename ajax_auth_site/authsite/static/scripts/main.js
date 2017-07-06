@@ -3,7 +3,10 @@ $(function() {
     
     var code_box = document.getElementById('id_sms_code');
     $('label[for="id_sms_code"]').hide();
+    if ($(code_box).length)
+    {
     code_box.style.display = 'none';
+    }
     var status = "";
     
     // Submit login_form on submit

@@ -25,7 +25,7 @@ SECRET_KEY = 'aad+a+0=_g5+n$0zce#*gr!rrbtdt17#sf6m&g*ii^9xs!uup('
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['12d84809.ngrok.io']
 AUTH_USER_MODEL = 'authsite.User'
 
 

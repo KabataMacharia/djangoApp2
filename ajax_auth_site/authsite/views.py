@@ -8,21 +8,17 @@ from django.views.decorators.csrf import csrf_exempt
 from authsite.models import *
 from authsite.forms import *
 
-import json
-from telesign.messaging import MessagingClient
-from telesign.util import random_with_n_digits
-#2fa
-#from telesign.api import Verify
+#Twilio Authy
+from authy.api import AuthyApiClient
 
+import json
 from django.utils.html import strip_tags
 
-#telesign account variables
-customer_id = "1A160C03-C778-4193-B6B0-FD34DC02F357"
-api_key = "bszbKGzRVzdUP66AGw+De/Dp9NHItRS5/X2RvmRMjqQJ4mBAYfiiSrN9R1SFRVUyNK+53GcebNBwoEqjbMUSPQ=="
-#secret_key = "bszbKGzRVzdUP66AGw+De/Dp9NHItRS5/X2RvmRMjqQJ4mBAYfiiSrN9R1SFRVUyNK+53GcebNBwoEqjbMUSPQ=="
-message_type = "OTP"
-verify_code = random_with_n_digits(5)
-message = "Your code is {}".format(verify_code)
+
+#Authy Account Variables
+AUTHY_KEY = 'AxGVrFbD6MDwKUvPt43G2nvihFgZBxPU'
+authy_api = AuthyApiClient(AUTHY_KEY)
+
 verified=False
 logging_in=None
 userobj=None
@@ -52,10 +48,15 @@ def register(request):
         if (type(cleaned_email) == dict):
             uform.add_error(None,cleaned_email)
         if uform.is_valid():
-            print("UFORM IS VALID!")
+            print("UFORM IS VALID!")            
             user = uform.save()
             pw = cleaned_password
             user.set_password(pw)
+            #create authy_user
+            authy_user = authy_api.users.create(cleaned_email, cleaned_phone_number, 254)
+            if authy_user.ok():
+                user.authy_id = authy_user.id 
+            print("USER CREATED:",user)
             user.save()  
             registered = True
             response_data['error_present'] = 'NO' 
@@ -107,18 +108,13 @@ def user_login(request):
                 
                 #find out User's number                 
                 uname=User.objects.filter(username=logging_in)
-                sms_number = uname[0].phone_number
+                sms_number = uname[0].phone_number                
                 print("sending verification code to:",sms_number)
-                print("Verify Code",verify_code)
                 
-                #Send verification message once we have authenticated our user
-                messaging = MessagingClient(customer_id, api_key)
-                response = messaging.message(sms_number, message, message_type)
-                #2fa
-                #user_verification = Verify(customer_id, secret_key)
-                #phone_info = user_verification.sms(sms_number, use_case_code="ATCK")
-                #status_info = user_verification.status(phone_info.data["reference_id"],verify_code=user_entered_verifycode)
-                #print("2FA, STATUS:",status_info.data["verify"]["code_state"])
+                #sending authy_sms:
+                authy_id = uname[0].authy_id
+                sms = authy_api.users.request_sms(authy_id)
+                print("Authy SMS:",sms)
                 
                 #If they don't correctly enter code, log them out instantly
                 if verified != True:
@@ -137,19 +133,18 @@ def user_login(request):
         lform = LoginForm(data=request.GET)
         print("LFORM GET",lform)
         try:
-            code = request.GET['code'] 
-            #code = clean_sms_code(code)
-            #2fa
-            #user_entered_verifycode = code
-            #response_data = {}             
-            
+            code = request.GET['code']        
+            user_entered_verifycode = code
             print('CODE GET IS:',code)
             response_data = {}
-             
-            #2fa
-            #print("2FA, STATUS AFTER SUBMIT:",status_info.data["verify"]["code_state"])
-            #if status_info.data["verify"]["code_state"] == 'VALID':
-            if (verify_code == code.strip()):
+            
+            #authy verfication:
+            uname=User.objects.filter(username=logging_in)
+            authy_id = uname[0].authy_id
+            verification = authy_api.tokens.verify(authy_id, user_entered_verifycode, {"force": True})
+            
+            #authy
+            if verification.ok():
                 print("They match")
                 response_data['verified_user'] = 'True'
                 
