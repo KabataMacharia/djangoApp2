@@ -71,7 +71,8 @@ function register_funct(){
                         warning = current.replace('email :', '');
                         warning.bold();
                         $('label[for="id_email"]').text ('Email:'+ warning); 
-                        $('label[for="id_email"]').css("color", "red"); 
+                        $('label[for="id_email"]').css("color", "red");
+                        document.getElementById('id_email').style.borderColor = "red"; 
                         }
                         
                     if (current.includes('username') == true)
@@ -79,7 +80,8 @@ function register_funct(){
                         warning = current.replace('username :', '');
                         warning.bold();
                         $('label[for="id_username"]').text ('Username:'+ warning); 
-                        $('label[for="id_username"]').css("color", "red");                      
+                        $('label[for="id_username"]').css("color", "red"); 
+                        document.getElementById('id_username').style.borderColor = "red";                     
                         
                         }
                     if (current.includes('password2') == true)
@@ -87,14 +89,17 @@ function register_funct(){
                         warning = current.replace('password2 :', '');
                         warning.bold();
                         $('label[for="id_password2"]').text ('Password2:'+ warning); 
-                        $('label[for="id_password2"]').css("color", "red");                      
+                        $('label[for="id_password2"]').css("color", "red"); 
+                        document.getElementById('id_password2').style.borderColor = "red";
+                        document.getElementById('id_password1').style.borderColor = "red";                     
                         
                         }
                     if (current.includes('phone_number') == true)
                     { 
                         warning = current.replace('phone_number :', '');                        
                         $('label[for="id_phone_number"]').text ('Phone number:'+ warning); 
-                        $('label[for="id_phone_number"]').css("color", "red");                      
+                        $('label[for="id_phone_number"]').css("color", "red");
+                        document.getElementById('id_phone_number').style.borderColor = "red";                     
                         
                         }
                                             
@@ -140,6 +145,8 @@ function register_funct(){
                 if(typeof json.logging_in =='string'){
                 
                 $("h3:first").replaceWith("<h3>Now enter the sms code<h3>");
+                document.getElementById('id_username').style.borderColor = "green";
+                document.getElementById('id_password').style.borderColor = "green";
                 
                 //$("div.username_pass").hide()
                 //$("#login_link").hide()
@@ -153,6 +160,8 @@ function register_funct(){
                         
                         
                         $($("<p id='incorrect_userpass'>The username or password you entered is incorrect</p>").css("color", "red")).insertBefore("#submit_button");
+                        document.getElementById('id_username').style.borderColor = "red";
+                        document.getElementById('id_password').style.borderColor = "red";
                         
                         //alert("Invalid login credentials.");
                         

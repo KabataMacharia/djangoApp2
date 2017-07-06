@@ -36,6 +36,11 @@ class UserForm(forms.ModelForm):
                 return password2
             except exceptions.ValidationError as e:
                 errors['password2'] = list(e.messages)                
+                for i in range(len(errors['password2'])):
+                    if 'short' in errors['password2'][i]:
+                        errors['password2'][i] = 'This password is too short, It must contain at least 8 characters!.'
+                    else:
+                        errors['password2'][i] = 'This password is entirely numeric!.'
                 print(errors) 
                 return errors             
         else:
