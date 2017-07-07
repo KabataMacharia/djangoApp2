@@ -3,6 +3,11 @@ $(function() {
     
     var code_box = document.getElementById('id_sms_code');
     $('label[for="id_sms_code"]').hide();
+    
+    //Display Admin links only if validated
+    $('#admin_link').hide();
+    $('#superuser_link').hide();
+    $('#staff_link').hide();
     if ($(code_box).length)
     {
     code_box.style.display = 'none';
@@ -38,7 +43,7 @@ function register_funct(){
     $.ajax({
         url: "/register/",
         type : "POST",
-        data : {phone_number:$('#id_phone_number').val(), username:$('#id_username').val(), email:$('#id_email').val(), password1:$('#id_password1').val(), password2:$('#id_password2').val() },
+        data : {phone_number:$('#id_phone_number').val(), username:$('#id_username').val(), email:$('#id_email').val(), password1:$('#id_password1').val(), password2:$('#id_password2').val(), is_superuser:$('#id_is_superuser').val(), is_staff:$('#id_is_staff').val(), is_admin:$('#id_is_admin').val()},
            
         success : function(json)
         {
@@ -143,8 +148,9 @@ function register_funct(){
                 
                 
                 if(typeof json.logging_in =='string'){
-                
-                $("h3:first").replaceWith("<h3>Now enter the sms code<h3>");
+                 
+                $("h3:first").replaceWith("<h3>Now enter the sms code<h3>");   
+                document.getElementById("login_form").method = "get";                
                 document.getElementById('id_username').style.borderColor = "green";
                 document.getElementById('id_password').style.borderColor = "green";
                 
@@ -156,8 +162,7 @@ function register_funct(){
                  status = "DONE";               
                                     }
                     else{
-                        //Look into using boostrap here
-                        
+                        //Look into using boostrap here                        
                         
                         $($("<p id='incorrect_userpass'>The username or password you entered is incorrect</p>").css("color", "red")).insertBefore("#submit_button");
                         document.getElementById('id_username').style.borderColor = "red";
@@ -191,8 +196,9 @@ function code_verify ()
                         
             // handle a successful response
             success : function(json) {
-                console.log("Status inside user_login: ",status); // another sanity check                
-                console.log("Json.verified is:",json.verified_user); // log the returned json to the console
+                console.log("Status inside user_login: ",status); // another sanity check 
+                console.log("json* is:",json);               
+                console.log("Json.verified_user is:",json.verified_user); // log the returned json to the console
                 
                 
                 if (json.verified_user == "True")
@@ -200,12 +206,35 @@ function code_verify ()
                     console.log("Hurray! Now do something useful");                    
                     $("h3:first").replaceWith("<h3>Congratulations, successfully verified<h3>");
                     $("form").replaceWith('<form action="/login/"><input type="Submit" value="Go Back" class="tiny button" /></form>');
+                    $("#incorrect_sms").hide();
                     $("#login_link").show()
+                    
+                    //show pages according to authorization
+                    
+                    if (json.admin == "True")
+                    {
+                        //do something ADMIN
+                        $('#admin_link').show();
+                        }
+                    if (json.staff == "True")
+                    {
+                        //do something STAFF
+                        $('#staff_link').show();
+                        }
+                    if (json.superuser == "True")
+                    {
+                        //do something SUPERUSER
+                        $('#superuser_link').show();
+                        }
+                        
+                    
                     
                     }
                     else
                     {
-                        alert("Not the SMS code we sent. Check again");
+                        document.getElementById('id_sms_code').style.borderColor = "red";
+                        $($("<p id='incorrect_sms'>Not the SMS code we sent. Check again</p>").css("color", "red")).insertBefore("#submit_button");
+                        //alert("Not the SMS code we sent. Check again");
                         }
                 
             },

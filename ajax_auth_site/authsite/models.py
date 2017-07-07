@@ -15,14 +15,14 @@ class MyUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
         
-    def create_user(self, username, password, email, phone_number):
+    def create_user(self, username, password, email, phone_number, is_superuser, is_admin, is_staff):
         user = self.model(email=self.normalize_email(email),
-        username=username, phone_number=phone_number)
+        username=username, phone_number=phone_number, is_admin=is_admin, is_superuser=is_superuser, is_staff=is_staff)
         user.set_password(password)
-        user.is_staff = False
+        user.is_staff = is_staff
         user.is_active = True
-        user.is_admin = False
-        user.is_superuser = False
+        user.is_admin = is_admin
+        user.is_superuser = is_superuser
         user.save (using=self._db) 
         return user  
          
@@ -32,7 +32,7 @@ class User(AbstractBaseUser):
     phone_number = models.CharField(max_length=20) 
     username = models.CharField(max_length=20, unique=True) 
     email = models.CharField(max_length=50, blank=True)    
-    password = models.CharField(max_length=20)
+    password = models.CharField(max_length=128)
     authy_id = models.CharField(max_length=20)     
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)

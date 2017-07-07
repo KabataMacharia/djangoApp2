@@ -20,7 +20,7 @@
         | <A id="superuser_link" href="/superuser/">SuperUsers</A>
         | <A id="staff_link" href="/staff/">Staff</A>
         
-        <h3>Login</h3>
+        <h3>Super User</h3>
         
     </div>
 </div>
@@ -31,15 +31,10 @@
 
 
     <div class="columns large-12" id="form_holder">
+        
                 
-        <FORM id="login_form" method="post" action="/login/">
-        {% csrf_token %}
-        <div class = "username_pass" id = "username_pass">
-            {{ lform.as_p }}
-
-          
-        <INPUT type="submit" name="submit" value="Submit" class="tiny button" id="submit_button" />
-        </FORM>
+       <p>You can see this page only because you have superuser rights. Good for you!</p>
+       <form action="/login/"><input type="Submit" value="Go Back" class="tiny button" /></form>
         
         
     </div>
@@ -47,3 +42,5 @@
 
 {% endblock %}       
         
+
+

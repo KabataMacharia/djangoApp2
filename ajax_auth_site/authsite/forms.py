@@ -12,11 +12,15 @@ class UserForm(forms.ModelForm):
     password2 = forms.CharField(widget=forms.PasswordInput)
     username = forms.CharField(widget=forms.TextInput)
     email = forms.CharField(widget=forms.EmailInput)
-    phone_number = forms.IntegerField()       
+    phone_number = forms.IntegerField() 
+    is_superuser = forms.NullBooleanField(label='Are you superuser?')
+    is_staff = forms.NullBooleanField(label='Are you staff?')
+    is_admin = forms.NullBooleanField(label='Are you admin?')
         
     class Meta:
         model = User 
-        fields = ("username", "email", "password1", "password2","phone_number")
+        fields = ("username", "email", "password1", "password2","phone_number", "is_superuser", "is_staff", "is_admin")        
+ 
         
     def clean_password(self):
         # Check that the two password entries match

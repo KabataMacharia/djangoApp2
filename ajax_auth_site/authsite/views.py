@@ -30,8 +30,8 @@ def register(request):
     
     if request.method == 'POST':
         response_data = {}
-        uform = UserForm(data=request.POST) 
-        print("UFORM",uform)  
+        uform = UserForm(data=request.POST)
+        print("UFORM",uform)          
         
         cleaned_email=uform.clean_email()
         cleaned_username=uform.clean_username()
@@ -47,8 +47,10 @@ def register(request):
             uform.add_error(None,cleaned_password)
         if (type(cleaned_email) == dict):
             uform.add_error(None,cleaned_email)
+       
         if uform.is_valid():
-            print("UFORM IS VALID!")            
+            print("UFORM IS VALID!")  
+            print("UFORM",uform)          
             user = uform.save()
             pw = cleaned_password
             user.set_password(pw)
@@ -56,7 +58,7 @@ def register(request):
             authy_user = authy_api.users.create(cleaned_email, cleaned_phone_number, 254)
             if authy_user.ok():
                 user.authy_id = authy_user.id 
-            print("USER CREATED:",user)
+            
             user.save()  
             registered = True
             response_data['error_present'] = 'NO' 
@@ -113,8 +115,7 @@ def user_login(request):
                 
                 #sending authy_sms:
                 authy_id = uname[0].authy_id
-                sms = authy_api.users.request_sms(authy_id)
-                print("Authy SMS:",sms)
+                sms = authy_api.users.request_sms(authy_id)                
                 
                 #If they don't correctly enter code, log them out instantly
                 if verified != True:
@@ -144,14 +145,28 @@ def user_login(request):
             verification = authy_api.tokens.verify(authy_id, user_entered_verifycode, {"force": True})
             
             #authy
-            if verification.ok():
+            if verification.ok():            
+                response_data = dict()              
                 print("They match")
-                response_data['verified_user'] = 'True'
+                response_data['verified_user'] = 'True'                
+                uname=User.objects.filter(username=logging_in)                              
                 
                 #User has completed two step verification, don't log them out 
                 global verified
                 verified = True 
                 login(request,userobj)
+                admin = uname[0].is_admin
+                staff = uname[0].is_staff
+                superuser = uname[0].is_superuser
+                
+                print("ADMIN:{0}, STAFF:{1}, SUPERUSER:{2}".format(admin,staff,superuser))
+                if admin:
+                    response_data['admin'] = 'True'
+                if staff:
+                    response_data['staff'] = 'True'
+                if superuser:
+                    response_data['superuser'] = 'True'
+                                        
                 return JsonResponse(response_data)
             else:
                 logout(request)
