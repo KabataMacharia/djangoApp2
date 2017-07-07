@@ -1,33 +1,6 @@
 {% extends "authsite/base.html" %}
 {% block content %}
-<!--
-<br><br>
-<div class="row white">
-    <div class="large-12 columns">
-        <P>
-        {% if user.is_authenticated %}
-                Welcome {{ user.username }}  |
-                
-                <A href="/logout/">Logout</A>
-        {% else %}
-                <A href="/register/">Register</A> |
-                <A href="/login/">Login</A>
-        {% endif %}
 
-        | <A id="admin_link" href="/admins/">Admins</A>
-        | <A id="superuser_link" href="/superuser/">SuperUsers</A>
-        | <A id="staff_link" href="/staff/">Staff</A>
-        </P>
-        
-        <h3>Welcome</h3>
-        
-    </div>
-</div>
--->
-
-<!--
-<div class="row white">
--->
     <div class="columns large-12">
         
         {% if registered %}
