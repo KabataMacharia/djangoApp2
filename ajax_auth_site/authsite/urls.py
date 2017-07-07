@@ -13,5 +13,5 @@ urlpatterns = [
                 url(r'^admins/$', TemplateView.as_view(template_name='authsite/admin.html')),
                 url(r'^staff/$', TemplateView.as_view(template_name='authsite/staff.html')),
                 url(r'^superuser/$', TemplateView.as_view(template_name='authsite/superuser.html')),
-                
+                url(r'^unauth/$', TemplateView.as_view(template_name='authsite/unauth.html')),
 				]

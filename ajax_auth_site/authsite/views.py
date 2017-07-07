@@ -55,9 +55,9 @@ def register(request):
             pw = cleaned_password
             user.set_password(pw)
             #create authy_user
-            authy_user = authy_api.users.create(cleaned_email, cleaned_phone_number, 254)
-            if authy_user.ok():
-                user.authy_id = authy_user.id 
+            #authy_user = authy_api.users.create(cleaned_email, cleaned_phone_number, 254)
+            #if authy_user.ok():
+                #user.authy_id = authy_user.id 
             
             user.save()  
             registered = True
@@ -114,8 +114,8 @@ def user_login(request):
                 print("sending verification code to:",sms_number)
                 
                 #sending authy_sms:
-                authy_id = uname[0].authy_id
-                sms = authy_api.users.request_sms(authy_id)                
+                #authy_id = uname[0].authy_id
+                #sms = authy_api.users.request_sms(authy_id)                
                 
                 #If they don't correctly enter code, log them out instantly
                 if verified != True:
@@ -132,7 +132,7 @@ def user_login(request):
     #Get the SMS code they've submitted
     else:
         lform = LoginForm(data=request.GET)
-        print("LFORM GET",lform)
+        #print("LFORM GET",lform)
         try:
             code = request.GET['code']        
             user_entered_verifycode = code
@@ -140,12 +140,13 @@ def user_login(request):
             response_data = {}
             
             #authy verfication:
-            uname=User.objects.filter(username=logging_in)
-            authy_id = uname[0].authy_id
-            verification = authy_api.tokens.verify(authy_id, user_entered_verifycode, {"force": True})
+            #uname=User.objects.filter(username=logging_in)
+            #authy_id = uname[0].authy_id
+            #verification = authy_api.tokens.verify(authy_id, user_entered_verifycode, {"force": True})
             
             #authy
-            if verification.ok():            
+            #if verification.ok():
+            if True:            
                 response_data = dict()              
                 print("They match")
                 response_data['verified_user'] = 'True'                
@@ -183,8 +184,7 @@ def restricted(request):
     return HttpResponse('Authsite says: since you are an authenticated user you can view this restricted page.')
 
 def user_logout(request):    
-    logout(request)
-    #Go back to index:
+    logout(request)    
     return redirect('/login')
 
     

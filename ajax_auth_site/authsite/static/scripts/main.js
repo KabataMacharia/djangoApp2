@@ -1,14 +1,12 @@
 $(function() {
-    console.log("current URL:",window.location.href);
+    console.log("current URL:",window.location.href);  
+    
+    check_creds();
     
     var code_box = document.getElementById('id_sms_code');
-    $('label[for="id_sms_code"]').hide();
-    
-    //Display Admin links only if validated
-    $('#admin_link').hide();
-    $('#superuser_link').hide();
-    $('#staff_link').hide();
-    if ($(code_box).length)
+    $('label[for="id_sms_code"]').hide();   
+  
+ if ($(code_box).length)
     {
     code_box.style.display = 'none';
     }
@@ -35,7 +33,85 @@ $(function() {
         console.log("At Register Form!: ",status);        
         console.log("Submit button activated!");  // sanity check 
         register_funct();       
-    });    
+    });   
+    
+    //logging out
+    var logout_active = document.getElementById('logout_link'); 
+    if ($(logout_active).length)
+    {
+            $(logout_active).on('click', function(){
+                console.log("Logout clicked!");
+                logout(); 
+                   
+                });
+    }
+
+function check_creds()
+{
+    //Have the credentials been set? if not, all are false    
+    var admin = localStorage.getItem("admin");
+    var staff = localStorage.getItem("staff");
+    var superuser = localStorage.getItem("superuser");
+    console.log("Checking Creds....");
+    console.log("Admin status is:",admin);
+    console.log("Staff status is:",staff);
+    console.log("SuperUser status is:",superuser);
+    
+    //REDIRECT
+    //window.location.replace('/login/');
+    //if (current.includes('email') == true)
+    //window.location.href
+    
+    if (admin == "True")
+    {
+        //do something ADMIN
+        console.log("Showing admin");
+        $('#admin_link').show();
+        }
+        if (admin != "True")
+    {
+        //do something ADMIN
+        if ((window.location.href).includes('admins') == true){ window.location.replace('/unauth/'); }
+        console.log("Hiding admin");
+        $('#admin_link').hide();
+        }
+    
+    if (staff == "True")
+    {
+        //do something STAFF
+        console.log("Showing staff");
+        $('#staff_link').show();
+        }
+        if (staff != "True")
+    {
+        //do something ADMIN
+        if ((window.location.href).includes('staff') == true){ window.location.replace('/unauth/'); }
+        console.log("Hiding staff");
+        $('#staff_link').hide();
+        }
+    if (superuser == "True")
+    {
+        //do something SUPERUSER
+        console.log("Showing superuser");
+        $('#superuser_link').show();
+        } 
+        if (superuser != "True")
+    {
+        //do something ADMIN
+        if ((window.location.href).includes('superuser') == true){ window.location.replace('/unauth/'); }
+        console.log("Hiding superuser");
+        $('#superuser_link').hide();
+        }     
+    };
+
+function logout()
+{
+    console.log("Inside logout function");
+    localStorage.setItem("admin", "False");
+    localStorage.setItem("staff", "False");
+    localStorage.setItem("superuser", "False");
+    
+    };
 
 function register_funct(){
     
@@ -47,6 +123,7 @@ function register_funct(){
            
         success : function(json)
         {
+            
            //anything else I might think of 
            console.log("phone_number",json.phone_number);
            console.log("username",json.username);
@@ -143,7 +220,8 @@ function register_funct(){
             data : { username: $('#id_username').val(), password: $('#id_password').val(), code: $('#id_sms_code').val(), csrfmiddlewaretoken: csrftoken, funct:'login'},    
                         
             // handle a successful response
-            success : function(json) {                
+            success : function(json) {  
+
                 console.log("Json.logging_in is:",json.logging_in); // log the returned json to the console
                 
                 
@@ -153,6 +231,10 @@ function register_funct(){
                 document.getElementById("login_form").method = "get";                
                 document.getElementById('id_username').style.borderColor = "green";
                 document.getElementById('id_password').style.borderColor = "green";
+                $('#id_username').hide();
+                $('#id_password').hide();
+                $('label[for="id_username"]').hide();
+                $('label[for="id_password"]').hide();
                 
                 //$("div.username_pass").hide()
                 //$("#login_link").hide()
@@ -196,6 +278,7 @@ function code_verify ()
                         
             // handle a successful response
             success : function(json) {
+               
                 console.log("Status inside user_login: ",status); // another sanity check 
                 console.log("json* is:",json);               
                 console.log("Json.verified_user is:",json.verified_user); // log the returned json to the console
@@ -210,24 +293,15 @@ function code_verify ()
                     $("#login_link").show()
                     
                     //show pages according to authorization
+                    console.log("Setting authorizations...");
+                    console.log("json.admin",json.admin);
+                     console.log("json.staff",json.staff);
+                      console.log("json.superuser",json.superuser);                      
+                        localStorage.setItem("admin", json.admin);
+                        localStorage.setItem("staff", json.staff);
+                        localStorage.setItem("superuser", json.superuser);
                     
-                    if (json.admin == "True")
-                    {
-                        //do something ADMIN
-                        $('#admin_link').show();
-                        }
-                    if (json.staff == "True")
-                    {
-                        //do something STAFF
-                        $('#staff_link').show();
-                        }
-                    if (json.superuser == "True")
-                    {
-                        //do something SUPERUSER
-                        $('#superuser_link').show();
-                        }
-                        
-                    
+                          
                     
                     }
                     else
