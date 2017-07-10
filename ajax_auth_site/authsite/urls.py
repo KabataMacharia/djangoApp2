@@ -2,7 +2,7 @@
 from django.conf.urls import url
 #from django.views.generic import TemplateView
 from . import views
-from authsite.views import AdminsView, StaffView, SuperUserView, UnauthView, UserLoginView, RegisterView, UserLogoutView
+from authsite.views import AdminsView, StaffView, SuperUserView, UnauthView, UserLoginView, RegisterView, UserLogoutView, AdminHomeView,UserHomeView
 
 urlpatterns = [ 				
                 url(r'^register/$', RegisterView.as_view()),
@@ -14,4 +14,7 @@ urlpatterns = [
                 url(r'^staff/$', StaffView.as_view()),
                 url(r'^superuser/$', SuperUserView.as_view()),
                 url(r'^unauth/$', UnauthView.as_view()),
+                url(r'^userhome/$', UserHomeView.as_view()),
+                url(r'^adminhome/$', AdminHomeView.as_view()),
+                
 				]

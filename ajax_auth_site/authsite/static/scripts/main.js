@@ -67,6 +67,7 @@ function check_creds()
         //do something ADMIN
         console.log("Showing admin");
         $('#admin_link').show();
+        if ((window.location.href).includes('userhome') == true){ window.location.replace('/adminhome/'); }
         }
         if (admin != "True")
     {
@@ -81,6 +82,7 @@ function check_creds()
         //do something STAFF
         console.log("Showing staff");
         $('#staff_link').show();
+        if ((window.location.href).includes('userhome') == true){ window.location.replace('/adminhome/'); }
         }
         if (staff != "True")
     {
@@ -94,6 +96,7 @@ function check_creds()
         //do something SUPERUSER
         console.log("Showing superuser");
         $('#superuser_link').show();
+        if ((window.location.href).includes('userhome') == true){ window.location.replace('/adminhome/'); }
         } 
         if (superuser != "True")
     {
@@ -101,7 +104,12 @@ function check_creds()
         if ((window.location.href).includes('superuser') == true){ window.location.replace('/unauth/'); }
         console.log("Hiding superuser");
         $('#superuser_link').hide();
-        }     
+        }
+        
+    //Normal user's view or Admin View:
+    //move this functionality to django, later on
+  
+    
     };
 
 function logout()

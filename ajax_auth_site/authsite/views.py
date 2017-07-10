@@ -218,5 +218,11 @@ class StaffView(TemplateView):
 
 class UnauthView(TemplateView):
     template_name = 'authsite/unauth.html'
+    
+class UserHomeView(TemplateView):
+    template_name = 'authsite/userhome.html'
+    
+class AdminHomeView(TemplateView):
+    template_name = 'authsite/admin_home.html'
 
     
