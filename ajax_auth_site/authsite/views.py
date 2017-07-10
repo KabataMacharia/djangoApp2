@@ -94,16 +94,19 @@ class RegisterView(View):
 class UserLoginView(View):
     template_name = 'authsite/login.html'
     form_class = LoginForm
-    initial = {'lform': LoginForm()}
+    initial = {'lform': LoginForm()}     
     print("We are in UserLoginView")
-      
- 
+    admin = False
+    staff = False
+    superuser = False
+
     def post(self, request, *args, **kwargs):  
         print("This is post")  
         response_data = {}    
         #Perform validation and clean on login form, instead of using request.POST[username]"
         lform = LoginForm(data=request.POST)
-        print("LFORM",lform)        
+        #print
+        print("Lform",lform)        
         username = lform.clean_username()
         password = lform.clean_password()
         
@@ -152,11 +155,14 @@ class UserLoginView(View):
         print("We're in def get")
         lform = LoginForm(data=request.GET)
         print("LFORM GET 1",lform)
+        #lform
         try:
             code = request.GET['code']        
             user_entered_verifycode = code
             print('CODE GET IS:',code)
             response_data = {}
+            #richie edit            
+            print('self.superuser is:',self.superuser )
             
             #authy verfication:
             uname=User.objects.filter(username=logging_in)
@@ -182,10 +188,14 @@ class UserLoginView(View):
                 print("ADMIN:{0}, STAFF:{1}, SUPERUSER:{2}".format(admin,staff,superuser))
                 if admin:
                     response_data['admin'] = 'True'
+                    UserLoginView.admin = True
                 if staff:
                     response_data['staff'] = 'True'
+                    UserLoginView.staff = True
                 if superuser:
                     response_data['superuser'] = 'True'
+                    UserLoginView.superuser = True
+                    print("self.superuser is now:",UserLoginView.superuser)
                                         
                 return JsonResponse(response_data)
             else:
@@ -195,33 +205,76 @@ class UserLoginView(View):
         except:
             #WE have no code in our GET
             print("We are in except")
+            #Richie Edit            
+            print('UserLoginView.superuser is:',UserLoginView.superuser )
             lform = LoginForm()                                   
             return render(request, self.template_name, self.initial)
         
         print("We are out of try/except blocks")        
-        return render(request, self.template_name, self.initial)
+        return render(request, self.template_name, self.initial)    
+    
         
 class UserLogoutView(View):    
          #template_name = 'authsite/login.html'                  
     def get(self, request, *args, **kwargs):    
-        logout(request)    
+        logout(request)
+        UserLoginView.admin = False
+        UserLoginView.staff = False
+        UserLoginView.superuser = False    
         return redirect('/login')
 
-class SuperUserView(TemplateView):
-    template_name = 'authsite/superuser.html'
+class SuperUserView(View):    
+    def get(self, request, *args, **kwargs):
+        print('At class SuperUserView is:',UserLoginView.superuser )           
     
-class AdminsView(TemplateView):
-    template_name = 'authsite/admin.html'
+        if(UserLoginView.superuser):        
+            template_name = 'authsite/superuser.html'
+            print("We are open! at superuser")
+        else:
+            print("We are unauth at superuser")
+            template_name = 'authsite/unauth.html'
+        
+        return render(request, template_name)    
+        
+    
+class AdminsView(View):
+    def get(self, request, *args, **kwargs):
+        print('At class AdminsView is:',UserLoginView.admin )           
+    
+        if(UserLoginView.admin):        
+            template_name = 'authsite/admin.html'
+            print("We are open! at admins")
+        else:
+            print("We are unauth at admins")
+            template_name = 'authsite/unauth.html'
+        
+        return render(request, template_name)
 
-class StaffView(TemplateView):
-    template_name = 'authsite/staff.html'
+class StaffView(View):
+    def get(self, request, *args, **kwargs):
+        print('At class StaffView is:',UserLoginView.staff )           
+    
+        if(UserLoginView.staff):        
+            template_name = 'authsite/staff.html'
+            print("We are open! at staff")
+        else:
+            print("We are unauth at staff")
+            template_name = 'authsite/unauth.html'
+        
+        return render(request, template_name)
 
 class UnauthView(TemplateView):
     template_name = 'authsite/unauth.html'
     
-class UserHomeView(TemplateView):
-    template_name = 'authsite/userhome.html'
-    
+class UserHomeView(View):
+    def get(self, request, *args, **kwargs):
+        if (UserLoginView.staff or UserLoginView.superuser):            
+            return redirect('/login')
+        else: 
+            template_name = 'authsite/userhome.html'
+            return render(request, template_name)
+
+        
 class AdminHomeView(TemplateView):
     template_name = 'authsite/admin_home.html'
 

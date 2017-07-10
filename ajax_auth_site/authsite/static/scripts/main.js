@@ -57,59 +57,53 @@ function check_creds()
     console.log("Staff status is:",staff);
     console.log("SuperUser status is:",superuser);
     
-    //REDIRECT
-    //window.location.replace('/login/');
-    //if (current.includes('email') == true)
-    //window.location.href
+      //move this functionality to django, later on
+      
+    //if (admin == "True")
+    //{
+        ////do something ADMIN
+        //console.log("Showing admin");
+        //$('#admin_link').show();
+        //if ((window.location.href).includes('userhome') == true){ window.location.replace('/adminhome/'); }
+        //}
+        //if (admin != "True")
+    //{
+        ////do something ADMIN
+        //if ((window.location.href).includes('admins') == true){ window.location.replace('/unauth/'); }
+        //console.log("Hiding admin");
+        //$('#admin_link').hide();
+        //}
     
-    if (admin == "True")
-    {
-        //do something ADMIN
-        console.log("Showing admin");
-        $('#admin_link').show();
-        if ((window.location.href).includes('userhome') == true){ window.location.replace('/adminhome/'); }
-        }
-        if (admin != "True")
-    {
-        //do something ADMIN
-        if ((window.location.href).includes('admins') == true){ window.location.replace('/unauth/'); }
-        console.log("Hiding admin");
-        $('#admin_link').hide();
-        }
-    
-    if (staff == "True")
-    {
-        //do something STAFF
-        console.log("Showing staff");
-        $('#staff_link').show();
-        if ((window.location.href).includes('userhome') == true){ window.location.replace('/adminhome/'); }
-        }
-        if (staff != "True")
-    {
-        //do something ADMIN
-        if ((window.location.href).includes('staff') == true){ window.location.replace('/unauth/'); }
-        console.log("Hiding staff");
-        $('#staff_link').hide();
-        }
-    if (superuser == "True")
-    {
-        //do something SUPERUSER
-        console.log("Showing superuser");
-        $('#superuser_link').show();
-        if ((window.location.href).includes('userhome') == true){ window.location.replace('/adminhome/'); }
-        } 
-        if (superuser != "True")
-    {
-        //do something ADMIN
-        if ((window.location.href).includes('superuser') == true){ window.location.replace('/unauth/'); }
-        console.log("Hiding superuser");
-        $('#superuser_link').hide();
-        }
-        
-    //Normal user's view or Admin View:
-    //move this functionality to django, later on
-  
-    
+    //if (staff == "True")
+    //{
+        ////do something STAFF
+        //console.log("Showing staff");
+        //$('#staff_link').show();
+        //if ((window.location.href).includes('userhome') == true){ window.location.replace('/adminhome/'); }
+        //}
+        //if (staff != "True")
+    //{
+        ////do something ADMIN
+        //if ((window.location.href).includes('staff') == true){ window.location.replace('/unauth/'); }
+        //console.log("Hiding staff");
+        //$('#staff_link').hide();
+        //}
+    //if (superuser == "True")
+    //{
+        ////do something SUPERUSER
+        //console.log("Showing superuser");
+        //$('#superuser_link').show();
+        //if ((window.location.href).includes('userhome') == true){ window.location.replace('/adminhome/'); }
+        //} 
+        //if (superuser != "True")
+    //{
+        ////do something ADMIN
+        //if ((window.location.href).includes('superuser') == true){ window.location.replace('/unauth/'); }
+        //console.log("Hiding superuser");
+        //$('#superuser_link').hide();
+        //}
+
+ 
     };
 
 function logout()

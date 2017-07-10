@@ -1,7 +1,6 @@
 
 from django.conf.urls import url
 #from django.views.generic import TemplateView
-from . import views
 from authsite.views import AdminsView, StaffView, SuperUserView, UnauthView, UserLoginView, RegisterView, UserLogoutView, AdminHomeView,UserHomeView
 
 urlpatterns = [ 				
