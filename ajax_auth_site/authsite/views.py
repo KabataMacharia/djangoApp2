@@ -200,10 +200,12 @@ class UserLoginView(View):
         
         print("We are out of try/except blocks")        
         return render(request, self.template_name, self.initial)
-                           
-def user_logout(request):    
-    logout(request)    
-    return redirect('/login')
+        
+class UserLogoutView(View):    
+         #template_name = 'authsite/login.html'                  
+    def get(self, request, *args, **kwargs):    
+        logout(request)    
+        return redirect('/login')
 
 class SuperUserView(TemplateView):
     template_name = 'authsite/superuser.html'
