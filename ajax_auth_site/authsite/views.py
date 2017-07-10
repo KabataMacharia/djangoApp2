@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
+from django.views import View
 from django.http import HttpResponse, JsonResponse
 from django.contrib.auth import authenticate
 from django.contrib.auth import login, logout
@@ -7,14 +8,14 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from authsite.models import *
 from authsite.forms import *
-
+#for class-based views:
+from django.views.generic import TemplateView
 #Twilio Authy
 #pip install authy
 from authy.api import AuthyApiClient
 
 import json
 from django.utils.html import strip_tags
-
 
 #Authy Account Variables
 AUTHY_KEY = 'AxGVrFbD6MDwKUvPt43G2nvihFgZBxPU'
@@ -25,11 +26,14 @@ logging_in=None
 userobj=None
 
 
+class RegisterView(View):
+    template_name = 'authsite/register.html'
+    form_class = UserForm
+    uform =  UserForm()
+    registered = False 
+    print("We are in RegisterView")
 
-def register(request):    
-    registered = False
-    
-    if request.method == 'POST':
+    def post(self, request, *args, **kwargs):      
         response_data = {}
         uform = UserForm(data=request.POST)
         print("UFORM",uform)          
@@ -56,12 +60,12 @@ def register(request):
             pw = cleaned_password
             user.set_password(pw)
             #create authy_user
-            authy_user = authy_api.users.create(cleaned_email, cleaned_phone_number, 254)
-            if authy_user.ok():
-                user.authy_id = authy_user.id 
+            #authy_user = authy_api.users.create(cleaned_email, cleaned_phone_number, 254)
+            #if authy_user.ok():
+                #user.authy_id = authy_user.id 
             
             user.save()  
-            registered = True
+            self.registered = True
             response_data['error_present'] = 'NO' 
             return JsonResponse(response_data)
         else:
@@ -78,15 +82,25 @@ def register(request):
             print(specific_error)
             
             response_data['specific_error'] = specific_error           
-            return JsonResponse(response_data)
-    else:
-        uform = UserForm()              
-    return render(request, 'authsite/register.html', {'uform': uform, 'registered': registered })
+            return JsonResponse(response_data)        
+    
+    
+    def get(self, request, *args, **kwargs):
+        #uform = UserForm() 
+        #self.registered = False
+        return render(request, 'authsite/register.html', {'uform': self.uform, 'registered': self.registered })
+    
 
+class UserLoginView(View):
+    template_name = 'authsite/login.html'
+    form_class = LoginForm
+    initial = {'lform': LoginForm()}
+    print("We are in UserLoginView")
+      
  
-def user_login(request):    
-    response_data = {}    
-    if request.method == 'POST':
+    def post(self, request, *args, **kwargs):  
+        print("This is post")  
+        response_data = {}    
         #Perform validation and clean on login form, instead of using request.POST[username]"
         lform = LoginForm(data=request.POST)
         print("LFORM",lform)        
@@ -115,8 +129,8 @@ def user_login(request):
                 print("sending verification code to:",sms_number)
                 
                 #sending authy_sms:
-                authy_id = uname[0].authy_id
-                sms = authy_api.users.request_sms(authy_id)                
+                #authy_id = uname[0].authy_id
+                #sms = authy_api.users.request_sms(authy_id)                
                 
                 #If they don't correctly enter code, log them out instantly
                 if verified != True:
@@ -129,11 +143,15 @@ def user_login(request):
             #return 'invalid login error' and redirect to login page
             print("Invalid login details "+username+" "+password)
             return render(request,'authsite/login.html', {'lform': lform})
+            
+        return render(request, self.template_name, self.initial)
      
-    #Get the SMS code they've submitted
-    else:
+
+
+    def get(self, request, *args, **kwargs): 
+        print("We're in def get")
         lform = LoginForm(data=request.GET)
-        #print("LFORM GET",lform)
+        print("LFORM GET 1",lform)
         try:
             code = request.GET['code']        
             user_entered_verifycode = code
@@ -142,11 +160,12 @@ def user_login(request):
             
             #authy verfication:
             uname=User.objects.filter(username=logging_in)
-            authy_id = uname[0].authy_id
-            verification = authy_api.tokens.verify(authy_id, user_entered_verifycode, {"force": True})
+            #authy_id = uname[0].authy_id
+            #verification = authy_api.tokens.verify(authy_id, user_entered_verifycode, {"force": True})
             
             #authy
-            if verification.ok():                        
+            #if verification.ok(): 
+            if True:                       
                 response_data = dict()              
                 print("They match")
                 response_data['verified_user'] = 'True'                
@@ -171,20 +190,31 @@ def user_login(request):
                 return JsonResponse(response_data)
             else:
                 logout(request)
-                return render(request,'authsite/login.html',{'lform': lform})
-                
+                return render(request, self.template_name ,self.initial)  
+                    
         except:
             #WE have no code in our GET
+            print("We are in except")
             lform = LoginForm()                                   
-            return render(request,'authsite/login.html',{'lform': lform})
-                       
-
-@login_required
-def restricted(request):
-    return HttpResponse('Authsite says: since you are an authenticated user you can view this restricted page.')
-
+            return render(request, self.template_name, self.initial)
+        
+        print("We are out of try/except blocks")        
+        return render(request, self.template_name, self.initial)
+                           
 def user_logout(request):    
     logout(request)    
     return redirect('/login')
+
+class SuperUserView(TemplateView):
+    template_name = 'authsite/superuser.html'
+    
+class AdminsView(TemplateView):
+    template_name = 'authsite/admin.html'
+
+class StaffView(TemplateView):
+    template_name = 'authsite/staff.html'
+
+class UnauthView(TemplateView):
+    template_name = 'authsite/unauth.html'
 
     
